@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Africa Fintech Sourcing System v2</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+:root{--bg:#0f1117;--surface:#1a1d27;--surface2:#242836;--border:#2e3348;--text:#e4e6f0;--text-muted:#8b8fa3;--accent:#6366f1;--accent-light:#818cf8;--green:#22c55e;--yellow:#eab308;--red:#ef4444;--orange:#f97316;--cyan:#06b6d4;--pink:#ec4899}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);line-height:1.5}
+.nav{display:flex;align-items:center;justify-content:space-between;padding:16px 32px;background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
+.nav-brand{font-size:18px;font-weight:700;letter-spacing:-0.5px}.nav-brand span{color:var(--accent)}
+.nav-tabs{display:flex;gap:4px}
+.nav-tab{padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:500;color:var(--text-muted);background:transparent;border:none;transition:all .2s}
+.nav-tab:hover{color:var(--text);background:var(--surface2)}.nav-tab.active{color:var(--accent-light);background:rgba(99,102,241,.15)}
+.nav-meta{font-size:12px;color:var(--text-muted)}
+.container{max-width:1440px;margin:0 auto;padding:24px 32px}
+.stats-bar{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:24px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px}
+.stat-card .label{font-size:11px;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-muted);margin-bottom:4px}
+.stat-card .value{font-size:24px;font-weight:700}.stat-card .sub{font-size:11px;color:var(--text-muted);margin-top:2px}
+.filters-bar{display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap;align-items:center}
+.filter-group{display:flex;flex-direction:column;gap:4px}
+.filter-group label{font-size:11px;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-muted)}
+.filter-group select,.filter-group input{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:8px 12px;border-radius:8px;font-size:13px;outline:none;min-width:140px}
+.filter-group select:focus,.filter-group input:focus{border-color:var(--accent)}
+.btn{padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:500;border:1px solid var(--border);background:var(--surface2);color:var(--text);transition:all .2s}
+.btn:hover{border-color:var(--accent);color:var(--accent-light)}
+.btn-primary{background:var(--accent);border-color:var(--accent);color:#fff}.btn-primary:hover{background:var(--accent-light)}
+.btn-sm{padding:5px 10px;font-size:12px}
+.btn-green{background:rgba(34,197,94,.15);border-color:var(--green);color:var(--green)}.btn-green:hover{background:rgba(34,197,94,.25)}
+.table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead th{background:var(--surface2);padding:12px 14px;text-align:left;font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-muted);cursor:pointer;white-space:nowrap;user-select:none;position:sticky;top:0}
+thead th:hover{color:var(--text)}
+tbody tr{border-top:1px solid var(--border);cursor:pointer;transition:background .15s}
+tbody tr:hover{background:rgba(99,102,241,.06)}
+tbody td{padding:10px 14px;white-space:nowrap}
+.company-name{font-weight:600;color:var(--accent-light)}
+.badge{display:inline-block;padding:2px 8px;border-radius:100px;font-size:11px;font-weight:500}
+.badge-green{background:rgba(34,197,94,.15);color:var(--green)}
+.badge-yellow{background:rgba(234,179,8,.15);color:var(--yellow)}
+.badge-red{background:rgba(239,68,68,.15);color:var(--red)}
+.badge-cyan{background:rgba(6,182,212,.15);color:var(--cyan)}
+.badge-purple{background:rgba(99,102,241,.15);color:var(--accent-light)}
+.badge-orange{background:rgba(249,115,22,.15);color:var(--orange)}
+.badge-pink{background:rgba(236,72,153,.15);color:var(--pink)}
+.score-pill{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:100px;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s}
+.score-pill:hover{transform:scale(1.05);box-shadow:0 0 8px rgba(99,102,241,.3)}
+.detail-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.6);z-index:200;display:none}
+.detail-overlay.open{display:flex;justify-content:flex-end}
+.detail-panel{width:720px;max-width:100%;height:100%;background:var(--surface);border-left:1px solid var(--border);overflow-y:auto;padding:32px;animation:slideIn .25s ease}
+@keyframes slideIn{from{transform:translateX(40px);opacity:0}to{transform:translateX(0);opacity:1}}
+.detail-panel .close-btn{position:absolute;top:16px;right:16px;background:var(--surface2);border:1px solid var(--border);color:var(--text);width:32px;height:32px;border-radius:8px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center}
+.detail-panel h2{font-size:22px;margin-bottom:4px}
+.detail-panel .subtitle{color:var(--text-muted);font-size:13px;margin-bottom:20px}
+.detail-section{margin-bottom:24px}
+.detail-section h3{font-size:13px;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-muted);margin-bottom:8px;border-bottom:1px solid var(--border);padding-bottom:6px}
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.detail-field .label{font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.3px}
+.detail-field .val{font-size:14px;font-weight:500}
+.detail-text{font-size:13px;line-height:1.7;color:var(--text)}
+.radar-container{width:280px;height:280px;margin:0 auto}
+.score-explain{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:8px}
+.score-explain .dim-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+.score-explain .dim-name{font-size:13px;font-weight:600}.score-explain .dim-val{font-size:14px;font-weight:700}
+.score-explain .dim-why{font-size:12px;color:var(--text-muted);line-height:1.5}
+.score-explain .dim-bar{height:4px;background:var(--border);border-radius:2px;margin-top:6px;overflow:hidden}
+.score-explain .dim-fill{height:100%;border-radius:2px}
+.competitor-card{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-bottom:6px}
+.competitor-card .comp-name{font-size:13px;font-weight:600;color:var(--orange)}.competitor-card .comp-desc{font-size:12px;color:var(--text-muted)}
+.signal-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.signal-item{background:var(--surface2);border-radius:6px;padding:8px 10px}
+.signal-item .sig-label{font-size:10px;text-transform:uppercase;color:var(--text-muted);letter-spacing:0.3px}
+.signal-item .sig-val{font-size:12px;line-height:1.4}
+.source-tag{display:inline-block;padding:3px 10px;border-radius:6px;font-size:12px;margin:2px;background:var(--surface2);border:1px solid var(--border)}
+.bench-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px}
+.bench-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;transition:border-color .2s;cursor:pointer}
+.bench-card:hover{border-color:var(--accent)}
+.bench-card .rank{font-size:32px;font-weight:800;color:var(--accent);float:right}
+.bench-card h3{font-size:16px;font-weight:700;margin-bottom:2px}
+.bench-card .sector{font-size:12px;color:var(--text-muted);margin-bottom:8px}
+.bench-card .founder-line{font-size:12px;color:var(--cyan);margin-bottom:10px}
+.bench-scores{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px}
+.bench-score-item{font-size:11px}.bench-score-item .dim{color:var(--text-muted)}
+.framework-content{max-width:900px}
+.framework-content h3{font-size:16px;font-weight:700;margin:24px 0 8px}
+.framework-content p,.framework-content li{font-size:14px;line-height:1.8}
+.framework-content ul{padding-left:20px;margin:8px 0}
+.framework-content table{width:100%;border-collapse:collapse;margin:16px 0}
+.framework-content table th,.framework-content table td{padding:10px 14px;border:1px solid var(--border);text-align:left;font-size:13px}
+.framework-content table th{background:var(--surface2);font-weight:600}
+.source-list{display:grid;gap:12px}
+.source-item{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px}
+.source-item h3{font-size:15px;font-weight:600;margin-bottom:4px}
+.source-item p{font-size:13px;color:var(--text-muted);margin-top:6px;line-height:1.6}
+.source-category{margin-bottom:32px}
+.source-category h2{font-size:18px;font-weight:700;margin-bottom:4px}
+.source-category .cat-desc{font-size:13px;color:var(--text-muted);margin-bottom:16px}
+.modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.7);z-index:300;display:none;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:32px;width:600px;max-width:90%;max-height:80vh;overflow-y:auto}
+.modal h2{font-size:18px;margin-bottom:16px}
+.modal .form-group{margin-bottom:16px}
+.modal .form-group label{display:block;font-size:12px;text-transform:uppercase;color:var(--text-muted);margin-bottom:4px}
+.modal .form-group input,.modal .form-group select,.modal .form-group textarea{width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:8px 12px;border-radius:8px;font-size:13px;outline:none}
+.modal .form-group textarea{height:60px;resize:vertical}
+.modal .form-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.view{display:none}.view.active{display:block}
+.edit-score-input{width:50px;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:4px 6px;border-radius:4px;font-size:13px;text-align:center}
+@media(max-width:768px){.stats-bar{grid-template-columns:repeat(3,1fr)}.nav{padding:12px 16px;flex-wrap:wrap;gap:8px}.container{padding:16px}.detail-panel{width:100%}}
+</style>
+</head>
+<body>
+<nav class="nav">
+<div class="nav-brand"><span>Q</span>uona · Africa Fintech Sourcing System <span style="font-size:11px;color:var(--green);margin-left:8px">v2.0</span></div>
+<div class="nav-tabs">
+<button class="nav-tab active" data-view="database">Database</button>
+<button class="nav-tab" data-view="benchmark">Benchmark</button>
+<button class="nav-tab" data-view="framework">Shortlist Framework</button>
+<button class="nav-tab" data-view="sources">Sources Playbook</button>
+</div>
+<div class="nav-meta">Case A · Ridwan Ali · March 2026</div>
+</nav>
+<div class="container">
+<div id="view-database" class="view active">
+<div class="stats-bar" id="stats-bar"></div>
+<div class="filters-bar">
+<div class="filter-group"><label>Search</label><input type="text" id="filter-search" placeholder="Company, founder, investor..."></div>
+<div class="filter-group"><label>Sector</label><select id="filter-sector"><option value="">All Sectors</option></select></div>
+<div class="filter-group"><label>Geography</label><select id="filter-geo"><option value="">All</option></select></div>
+<div class="filter-group"><label>Syndicate</label><select id="filter-syndicate"><option value="">All</option><option value="Y">Strong</option><option value="N">Weak</option></select></div>
+<div class="filter-group"><label>Min Score</label><select id="filter-minscore"><option value="0">Any</option><option value="3">3.0+</option><option value="3.5">3.5+</option><option value="4">4.0+</option></select></div>
+<div class="filter-group" style="align-self:flex-end"><button class="btn" onclick="resetFilters()">Reset</button></div>
+<div class="filter-group" style="align-self:flex-end;margin-left:auto">
+<button class="btn btn-green" onclick="openAddModal()">+ Add Company</button>
+<button class="btn btn-primary" onclick="exportCSV()" style="margin-left:8px">Export CSV</button>
+</div>
+</div>
+<div class="table-wrap">
+<table>
+<thead><tr>
+<th data-sort="rank">#</th>
+<th data-sort="name">Company</th>
+<th data-sort="sector">Sector</th>
+<th data-sort="hq">HQ</th>
+<th>Founders</th>
+<th data-sort="seedYear">Seed</th>
+<th data-sort="totalRaised">Raised</th>
+<th data-sort="syndicateTier">Tier</th>
+<th data-sort="totalScore">Score</th>
+<th>Source</th>
+</tr></thead>
+<tbody id="table-body"></tbody>
+</table>
+</div>
+<div style="margin-top:12px;font-size:12px;color:var(--text-muted)">Click any row for full detail with score explainability · <span id="row-count">0</span> of <span id="total-count">0</span> companies · Scores are editable</div>
+</div>
+<div id="view-benchmark" class="view">
+<div style="margin-bottom:24px"><h2 style="font-size:20px;font-weight:700">Company Benchmarking</h2><p style="font-size:13px;color:var(--text-muted)">Ranked by weighted score. New framework: Founder (20%), Market (20%), Traction (20%), Competitive (15%), Capital Efficiency (15%), SDG/Impact (10%).</p></div>
+<div class="bench-grid" id="bench-grid"></div>
+</div>
+<div id="view-framework" class="view">
+<div style="margin-bottom:24px"><h2 style="font-size:20px;font-weight:700">Shortlist Framework v2</h2><p style="font-size:13px;color:var(--text-muted)">Overhauled scoring with founder DD, named competitors, capital efficiency, and SDG/impact assessment.</p></div>
+<div class="framework-content" id="framework-content"></div>
+</div>
+<div id="view-sources" class="view">
+<div style="margin-bottom:24px"><h2 style="font-size:20px;font-weight:700">Sources Playbook</h2><p style="font-size:13px;color:var(--text-muted)">40+ novel sources across 9 categories including social, hiring, policy, and product intelligence.</p></div>
+<div id="sources-content"></div>
+</div>
+</div>
+<div class="detail-overlay" id="detail-overlay"><div class="detail-panel" id="detail-panel" style="position:relative"></div></div>
+<div class="modal-overlay" id="add-modal"><div class="modal" id="add-modal-content"></div></div>
+
+<script>
+// ============================================================
+// EMBEDDED DATA
+// ============================================================
+let companies = [{"name": "Juicyway", "website": "juicyway.com", "sector": "Stablecoins & Digital Assets", "subSector": "Cross-Border Payments", "hq": "Nigeria", "markets": "Nigeria + multiple African markets", "marketCount": 5, "seedYear": 2024, "seedSize": 3, "totalRaised": 3, "leadInvestors": "P1 Ventures", "otherInvestors": "Future Africa, Ventures Platform, Magic Fund, Microtraction", "syndicate": "Y", "syndicateTier": "Tier 4", "product": "Stablecoin-powered cross-border payments for businesses. Fiat and stablecoin liquidity pools.", "customerSegment": "B2B — corporates and fintechs", "traction": "$1.3B+ cumulative txns from 4K users. Bolt, PiggyVest, Bamboo, IHS clients.", "risks": "Geography edge case. $1.3B GMV needs verification. Regulatory risk.", "founders": {"names": "Ife Johnson (CEO), Justin Ziegler (COO), Idris Ibrahim (Co-founder)", "background": "Ife: ex-Bamboo (Chief of Staff/Head of Growth), co-founded Career Buddy. Justin: Princeton & Stanford MBA, ex-Andela Chief of Staff. Idris: 15 yrs financial services, ex-Canary Point Corp MD.", "fit": "Deep Nigerian FX/financial services + world-class ops scaling (Andela, Bamboo)."}, "competitors": [{"name": "Honeycoin", "desc": "Cross-border remittance platform, $500M GTV in Q4 2024"}, {"name": "Conduit", "desc": "Stablecoin-powered commercial trade & cross-border payments in Africa"}, {"name": "Grey", "desc": "Nigerian fintech enabling cross-border foreign currency holding"}], "scores": {"founder": {"val": 4.5, "why": "3 co-founders with complementary skills. Deep FX/fintech domain (Canary Point, Bamboo). Princeton/Stanford pedigree."}, "competitive": {"val": 4, "why": "Stablecoin angle differentiated vs traditional rails. Blue-chip B2B clients create switching costs."}, "market": {"val": 5, "why": "Africa cross-border payments projected $1T by 2035. Remittance fees highest globally (7-8%). AfCFTA tailwind."}, "traction": {"val": 5, "why": "$1.3B processed on just $3M raised — extraordinary capital efficiency. Bolt, PiggyVest, IHS as clients."}, "capitalEfficiency": {"val": 5, "why": "$1.3B/$3M = ~433x GMV-to-funding ratio. Best in database. Operated in stealth 3 years before raising."}, "sdgImpact": {"val": 4, "why": "Reduces cross-border payment costs for African businesses. SDG 8, 10. Stablecoin regulatory risk tempers score."}}, "totalScore": 4.65, "signals": {"hiring": "Growing team in Lagos. Engineering + compliance roles.", "news": "TechCrunch Dec 2024 coverage.", "policy": "Nigerian crypto regulation evolving. SEC guidelines pending.", "appIntel": "B2B platform, not consumer app.", "social": "Ife Johnson active on Twitter/X."}, "primarySource": "TechCrunch", "secondarySource": "TechPoint Africa", "discoveryPath": "Found via TechCrunch Dec 2024. GMV verified via TechPoint Africa. Future Africa confirmed via Soyombo LinkedIn.", "sourceLinks": ["TechCrunch Dec 2024", "TechPoint Africa", "Juicyway Website", "Future Africa Portfolio"], "rank": 1}, {"name": "Precium (fka Revio)", "website": "precium.com", "sector": "Core Payments", "subSector": "Payment Orchestration", "hq": "South Africa", "markets": "SA + 25 African markets", "marketCount": 25, "seedYear": 2023, "seedSize": 5.2, "totalRaised": 6.3, "leadInvestors": "QED Investors, Partech Africa", "otherInvestors": "Speedinvest, RaliCap, Everywhere VC", "syndicate": "Y", "syndicateTier": "Tier 1", "product": "Payment orchestration: single API, 70+ payment methods, 25+ African markets. Routing, reconciliation, optimization.", "customerSegment": "Merchants & enterprises", "traction": "Old Mutual, MTN clients; 70+ methods; 25+ markets; tripled MRR", "risks": "Rebrand risk. Competitive (MoneyHash, Stitch). No public revenue.", "founders": {"names": "Ruaan Botha (CEO), Nicole Dunn (COO)", "background": "Ruaan: 12+ yrs digital strategy at SA banks/insurers, Informatics & Business Mgmt at U. Pretoria. Nicole: 5 yrs Elixirr consulting & Founders Factory Africa, Economics/Philosophy at UCT.", "fit": "Deep SA financial services + venture-building expertise across African markets."}, "competitors": [{"name": "MoneyHash", "desc": "Egypt-based payment orchestration for MEA, 200+ providers, 80+ markets"}, {"name": "Flutterwave", "desc": "Major pan-African payments platform, competing in processing & orchestration"}, {"name": "PayU", "desc": "Global payment tech company active in African markets"}], "scores": {"founder": {"val": 4, "why": "12+ yrs SA fintech experience. Attracted QED+Partech co-lead. Limited public profile prevents 5."}, "competitive": {"val": 4, "why": "Broadest African coverage (25+ markets). MoneyHash is main rival. Stitch acquisition validated category."}, "market": {"val": 5, "why": "$370B Africa digital payments TAM. Payment fragmentation (70+ methods) is a structural tailwind."}, "traction": {"val": 4.5, "why": "Old Mutual & MTN as clients. Tripled MRR. 25+ market coverage at seed is exceptional. No public revenue."}, "capitalEfficiency": {"val": 4, "why": "$6.3M raised, tripled MRR, 25-market coverage. Strong output per dollar. Series A timing right."}, "sdgImpact": {"val": 4.5, "why": "Enables merchants to accept mobile money/bank transfers reaching underbanked consumers. SDG 8, 9, 10."}}, "totalScore": 4.35, "signals": {"hiring": "Engineering roles posted on LinkedIn (SA, remote)", "news": "Rebrand to Precium Jun 2024. No negative press.", "policy": "SA FSCA compliant. Multi-market regulatory complexity.", "appIntel": "B2B — no consumer app.", "social": "Active LinkedIn. Limited Twitter."}, "primarySource": "TechCrunch", "secondarySource": "Disrupt Africa", "discoveryPath": "Found via TechCrunch Sep 2023. Cross-ref Crunchbase, QED portfolio, Partech portfolio. Rebrand confirmed via Precium blog.", "sourceLinks": ["TechCrunch Sep 2023", "Disrupt Africa Sep 2023", "QED Portfolio", "Partech Portfolio", "Precium Blog"], "rank": 2}, {"name": "MoneyHash", "website": "moneyhash.io", "sector": "Financial Infrastructure", "subSector": "Payment Orchestration", "hq": "Egypt", "markets": "MEA, 80+ markets", "marketCount": 80, "seedYear": 2024, "seedSize": 4.5, "totalRaised": 12, "leadInvestors": "COTU Ventures, Sukna Ventures", "otherInvestors": "Flourish Ventures (pre-A $5.2M Jan 2025)", "syndicate": "Y", "syndicateTier": "Tier 1", "product": "Payment orchestration OS for MEA. Single API, 200+ providers, 80+ markets.", "customerSegment": "Large enterprises & merchants", "traction": "Triple revenue 2023; 30x volume growth; Foodics, Rain, Tamatem clients.", "risks": "$12M total close to Series A. Competing with Precium.", "founders": {"names": "Nader Abdelrazik (CEO), Mustafa Eid (CTO), Anisha Sekar (CPO)", "background": "Nader: MS Dev Economics UC Berkeley, 15+ yrs tech (Microsoft, XPay), lecturer. Mustafa: ex-CTO XPay. Anisha: Brown CS, ex-NerdWallet/SigFig product.", "fit": "Complementary trio: MENA payments domain (Nader+Mustafa ex-XPay) + US fintech product (Anisha)."}, "competitors": [{"name": "Precium", "desc": "QED-backed SA payment orchestration, 25+ African markets"}, {"name": "Payrails", "desc": "a16z-backed payment orchestration platform"}, {"name": "Spreedly", "desc": "US-based payment orchestration and vault platform"}], "scores": {"founder": {"val": 4.5, "why": "UC Berkeley + Microsoft + XPay founding team. Anisha adds US fintech product depth. Complementary trio."}, "competitive": {"val": 3.5, "why": "Directly competing with Precium in Africa. Broader MEA scope dilutes Africa focus. Global players (Spreedly) also compete."}, "market": {"val": 4.5, "why": "MEA payment orchestration real and growing. 80+ markets scope. MEA focus dilutes pure Africa conviction slightly."}, "traction": {"val": 4.5, "why": "Triple revenue, 30x volume growth. Foodics & Rain as enterprise clients. $12M raised is substantial."}, "capitalEfficiency": {"val": 3.5, "why": "$12M total raised is high for stage. Close to Series A territory. Revenue growth strong but capital-heavy."}, "sdgImpact": {"val": 4, "why": "Enables digital payment acceptance across MEA. Financial inclusion for merchants. SDG 8, 9."}}, "totalScore": 4.15, "signals": {"hiring": "Active hiring Cairo + remote. Engineering, sales, product.", "news": "TechCrunch Feb 2024 seed, Jan 2025 pre-A.", "policy": "Egypt CBE regulated. Multi-market compliance.", "appIntel": "B2B platform.", "social": "Nader active on LinkedIn/Twitter."}, "primarySource": "TechCrunch", "secondarySource": "Wamda", "discoveryPath": "Found via TechCrunch Feb 2024. Pre-A via TechCrunch Jan 2025. Flourish confirmed.", "sourceLinks": ["TechCrunch Feb 2024", "TechCrunch Jan 2025", "Flourish Portfolio", "Wamda"], "rank": 3}, {"name": "Cauridor", "website": "cauridor.com", "sector": "Trade & Supply Chain Finance", "subSector": "Cross-Border Payments", "hq": "Guinea", "markets": "Guinea, Senegal, IC, SL, Mali, Nigeria", "marketCount": 6, "seedYear": 2025, "seedSize": 3.5, "totalRaised": 3.5, "leadInvestors": "Oui Capital", "otherInvestors": "Rally Cap, BKR Capital, angels", "syndicate": "N", "syndicateTier": "Tier 3", "product": "Payment rails for Francophone Africa. 25K+ agent network.", "customerSegment": "Merchants, banks, telcos, MTOs", "traction": "$500M TPV 2024 (up from $300M 2023); 2M txns", "risks": "Francophone niche. No Tier 1-2 syndicate. FX risk.", "founders": {"names": "Oumar Rafiou Barry (CEO), Abdoulaye Bah (CTO)", "background": "Oumar: PhD engineering U. Toronto, ex-Hydro One Networks, ex-Virginia Tech faculty (NSF CAREER Award). Abdoulaye: degrees from U. Paris-Est Creteil, ex-Diebold Nixdorf, ex-IGT. Both from Guinea, co-founded BNB Transfer Corp in 2011.", "fit": "Decade+ of money transfer experience through BNB Transfer Corp + deep understanding of Francophone Africa payment landscape."}, "competitors": [{"name": "Onafriq (fka MFS Africa)", "desc": "Pan-African payments network connecting mobile money wallets"}, {"name": "Thunes", "desc": "Global cross-border payments with strong African mobile money presence"}, {"name": "Wave", "desc": "Major mobile money provider in Francophone West Africa"}], "scores": {"founder": {"val": 4, "why": "PhD + NSF CAREER Award. 10+ yrs money transfer via BNB Transfer. From Guinea = deep local understanding."}, "competitive": {"val": 3.5, "why": "Francophone niche creates defensibility vs English-focused players. Wave is local competitor. Onafriq is pan-African."}, "market": {"val": 4, "why": "Francophone Africa underserved by English-first fintechs. Cross-border payments critical for West African trade corridors."}, "traction": {"val": 4.5, "why": "$500M TPV on $3.5M raised. 67% YoY TPV growth. 2M transactions. 25K+ agent network."}, "capitalEfficiency": {"val": 4.5, "why": "$500M TPV on $3.5M = ~143x ratio. Very capital efficient. Agent network creates low-cost distribution."}, "sdgImpact": {"val": 4, "why": "Financial inclusion in Francophone Africa — most underserved region on continent. SDG 1, 8, 10."}}, "totalScore": 4.1, "signals": {"hiring": "Growing team in Conakry + Dakar.", "news": "TechCrunch Jan 2025.", "policy": "Multi-jurisdiction Francophone regulation. BCEAO compliance.", "appIntel": "Agent-based, not app-based.", "social": "Oumar Barry on LinkedIn."}, "primarySource": "TechCrunch", "secondarySource": "Daba Finance", "discoveryPath": "Found via TechCrunch Jan 2025. Francophone angle via Daba Finance.", "sourceLinks": ["TechCrunch Jan 2025", "Daba Finance", "Cauridor Website"], "rank": 4}, {"name": "Telda", "website": "telda.app", "sector": "Embedded Finance", "subSector": "Neobanking", "hq": "Egypt", "markets": "Egypt", "marketCount": 1, "seedYear": 2022, "seedSize": 20, "totalRaised": 25, "leadInvestors": "Global Founders Capital", "otherInvestors": "Sequoia Capital, Block (Jack Dorsey)", "syndicate": "Y", "syndicateTier": "Tier 1", "product": "Digital banking app for Egyptian millennials/Gen Z. Free accounts, Visa cards, P2P, savings.", "customerSegment": "Consumers (millennials/Gen Z)", "traction": "3M+ downloads; $25M total raised.", "risks": "$20M seed = high bar. Monetization unclear. Single market.", "founders": {"names": "Ahmed Sabbah (CEO), Youssef Sholqamy (CTO)", "background": "Ahmed: CS from German U. Cairo, co-founder/CTO Swvl (first African NASDAQ listing at $1.5B). Youssef: CS from German U. Cairo, senior engineer Uber infra team.", "fit": "Repeat founder who scaled a unicorn to NASDAQ + senior Uber infra engineer."}, "competitors": [{"name": "MNT-Halan", "desc": "Egypt's premier fintech ecosystem, one of the country's largest lenders"}, {"name": "Rise", "desc": "Egypt's first private mobile bank launched 2023, Nubank playbook"}, {"name": "onebank", "desc": "Egypt's first licensed digital bank, subsidiary of Banque Misr"}], "scores": {"founder": {"val": 5, "why": "Ahmed built Swvl to $1.5B NASDAQ listing. Youssef = senior Uber infra. Exceptional repeat-founder signal."}, "competitive": {"val": 3.5, "why": "MNT-Halan, Rise, onebank all competing. Egypt neobanking increasingly crowded."}, "market": {"val": 4.5, "why": "Egypt 74% financially included but cash-heavy. 60M under-30 population. Huge neobanking TAM."}, "traction": {"val": 4, "why": "3M+ downloads strong. $25M raised = $20M seed is unusually large. Monetization path unclear."}, "capitalEfficiency": {"val": 3, "why": "$25M raised with unclear monetization. High burn rate implied. $20M seed raises bar significantly."}, "sdgImpact": {"val": 4, "why": "Banking the unbanked/underbanked in Egypt. P2P transfers reduce cash dependency. SDG 1, 8, 10."}}, "totalScore": 4.08, "signals": {"hiring": "Large team (50+). Hiring across product, engineering, ops.", "news": "Quiet since 2022 raise — no recent press.", "policy": "Operates under CBE regulatory framework.", "appIntel": "Google Play Egypt: 3M+ downloads, 4.5★ rating.", "social": "Ahmed Sabbah active LinkedIn."}, "primarySource": "TechCrunch", "secondarySource": "Crunchbase", "discoveryPath": "Found via TechCrunch Oct 2022. Downloads verified via Google Play Egypt.", "sourceLinks": ["TechCrunch Oct 2022", "Crunchbase", "Google Play Egypt"], "rank": 5}, {"name": "Flash", "website": "useflash.app", "sector": "Core Payments", "subSector": "QR Payments", "hq": "Egypt", "markets": "Egypt", "marketCount": 1, "seedYear": 2023, "seedSize": 6, "totalRaised": 6, "leadInvestors": "Addition (Lee Fixel)", "otherInvestors": "Flourish Ventures, strategic angels", "syndicate": "Y", "syndicateTier": "Tier 1", "product": "Cashless QR scan-and-pay for consumers and merchants. Banque Misr partnership.", "customerSegment": "Consumers & SME merchants", "traction": "50K txns; ~EGP 10M GMV; 30% MoM revenue growth", "risks": "Egypt-only. QR adoption nascent. Low absolute GMV.", "founders": {"names": "Erik Gordon (CEO), Sherine Kabesh (Co-founder)", "background": "Erik: Biomedical engineering + economics WashU, ex-Uber Head of Marketplace, ex-Bain. Sherine: ex-Uber Egypt Head of Marketing, ex-Vodafone, MBA from Heriot-Watt/AUC.", "fit": "Both Uber alumni with deep ops + go-to-market experience in Egypt's consumer payments."}, "competitors": [{"name": "Paymob", "desc": "Dominant Egyptian fintech, QR payments, 390K+ businesses"}, {"name": "Fawry", "desc": "Egypt's largest payment network, 29M+ customers, 3M+ daily ops"}, {"name": "PayTabs", "desc": "Regional payment gateway facilitating contactless QR transactions"}], "scores": {"founder": {"val": 4.5, "why": "Uber alumni (Head of Marketplace + Head of Marketing). Bain consulting rigor. Deep Egypt consumer ops expertise."}, "competitive": {"val": 3.5, "why": "Fawry and Paymob are dominant incumbents. No-POS QR approach differentiated but unproven at scale."}, "market": {"val": 4, "why": "Egypt heavily cash-dependent for merchant payments. QR potential huge (India UPI analogy) but adoption nascent."}, "traction": {"val": 3.5, "why": "30% MoM revenue growth strong. 50K transactions small absolute numbers. Banque Misr partnership validates."}, "capitalEfficiency": {"val": 3.5, "why": "$6M raised, early traction. Banque Misr partnership reduces CAC. But absolute GMV still low."}, "sdgImpact": {"val": 5, "why": "Digitizes cash-heavy informal merchants. No-hardware approach reaches micro-SMEs. Perfect financial inclusion. SDG 1, 8, 10."}}, "totalScore": 3.95, "signals": {"hiring": "Small team growing in Cairo.", "news": "TechCrunch Jul 2023 coverage.", "policy": "Banque Misr partnership = CBE regulatory cover.", "appIntel": "Consumer app in Egypt App Store.", "social": "Erik Gordon on LinkedIn."}, "primarySource": "TechCrunch", "secondarySource": "Flourish Ventures Portfolio", "discoveryPath": "Found via TechCrunch Jul 2023. Confirmed on Flourish portfolio. Banque Misr via Flash press.", "sourceLinks": ["TechCrunch Jul 2023", "Flourish Ventures Portfolio"], "rank": 6}, {"name": "Amenli", "website": "amenli.com", "sector": "Embedded Finance", "subSector": "Insurtech", "hq": "Egypt", "markets": "Egypt", "marketCount": 1, "seedYear": 2021, "seedSize": 2.3, "totalRaised": 5.73, "leadInvestors": "P1 Ventures, GFC, Anim Fund", "otherInvestors": "EBRD ($2.3M 2024), Y Combinator", "syndicate": "Y", "syndicateTier": "Tier 2", "product": "Digital insurance brokerage for Egypt. YC S21.", "customerSegment": "Consumers and businesses", "traction": "Only African insurtech in global Top 50. FRA-licensed.", "risks": "Before window (edge). Insurtech early in Egypt.", "founders": {"names": "Shady El Tohfa (CEO), Adham Nauman (CTO), Omar Ezz El Din (Finance)", "background": "Shady: BA Business Admin AUC, CCO at Paymob founding team (scaled to 50K+ merchants, 5 countries), Goldman Sachs 10,000 Women program. Adham: BSc Mech Eng Ain Shams, Tech Lead at Paymob founding team. YC S21.", "fit": "Founding team built and scaled Paymob (MENA's fastest-growing payments co) — deep distribution + tech expertise."}, "competitors": [{"name": "Lami", "desc": "Kenyan insurtech for embedding and offering insurance products"}, {"name": "Ctrl", "desc": "SA digital insurance comparison and management"}, {"name": "Naked", "desc": "SA AI-powered digital insurance with on-demand coverage"}], "scores": {"founder": {"val": 4.5, "why": "Paymob founding team (CCO + Tech Lead). Scaled to 50K+ merchants. YC S21. Goldman Sachs program. Exceptional."}, "competitive": {"val": 3.5, "why": "Egyptian insurtech = blue ocean. Lami/Ctrl/Naked in different markets. Low competition locally."}, "market": {"val": 3.5, "why": "Egyptian insurance penetration very low (<2% of GDP). Massive potential but consumer adoption slow."}, "traction": {"val": 3.5, "why": "Only African insurtech in global Top 50. FRA-licensed. EBRD follow-on validates."}, "capitalEfficiency": {"val": 3.5, "why": "$5.73M total with EBRD follow-on. Reasonable for stage. Insurance businesses are capital-light."}, "sdgImpact": {"val": 4.5, "why": "Insurance access for underserved Egyptians. Health/property/business coverage. SDG 1, 3, 8."}}, "totalScore": 3.8, "signals": {"hiring": "Cairo team.", "news": "EBRD press release 2024. TechCrunch Oct 2021.", "policy": "FRA licensed. Egyptian insurance regulation.", "appIntel": "Consumer insurance app.", "social": "Shady El Tohfa on LinkedIn."}, "primarySource": "TechCrunch", "secondarySource": "Empower Africa", "discoveryPath": "Found via TechCrunch Oct 2021. EBRD follow-on via EBRD press 2024.", "sourceLinks": ["TechCrunch Oct 2021", "Empower Africa", "EBRD PR", "YC Directory", "Fintech Egypt"], "rank": 7}, {"name": "Orca Fraud", "website": "orca-fraud.com", "sector": "Financial Infrastructure", "subSector": "Fraud Detection", "hq": "South Africa", "markets": "SA + 70 countries", "marketCount": 70, "seedYear": 2024, "seedSize": 2.35, "totalRaised": 2.35, "leadInvestors": "Norrsken22", "otherInvestors": "Pre-seed investors", "syndicate": "Y", "syndicateTier": "Tier 2", "product": "Real-time fraud detection for alternative payment methods in EM.", "customerSegment": "Banks, telcos, payment providers", "traction": "$5B+ monthly txn volume monitored across 70+ countries", "risks": "Very early. Small team risk. Competitive with global players.", "founders": {"names": "Thalia Pillay (CEO), Carla Wilby (CTO)", "background": "Thalia: Mechatronic engineering UCT, ex-Investec London, ex-Aerobotics, engineering lead at Stitch. Carla: Electrical/computer engineering UCT, ex-AWS, senior engineer at Stitch.", "fit": "Both ex-Stitch engineers who saw EM fraud challenges firsthand while building payments infra."}, "competitors": [{"name": "Seon", "desc": "Fraud detection using digital footprint analysis"}, {"name": "Sardine", "desc": "AI fraud prevention for digital finance companies"}, {"name": "Featurespace", "desc": "Adaptive behavioral analytics for fraud detection"}], "scores": {"founder": {"val": 4, "why": "Ex-Stitch (acquired by Stripe) engineers. Direct domain insight. Technical founder-market fit. Small team risk."}, "competitive": {"val": 3.5, "why": "Global players (Sardine, Seon) could expand to Africa. First-mover in EM-native fraud detection."}, "market": {"val": 4, "why": "Fraud losses growing fast with digital payment explosion. Global tools poorly calibrated for mobile money/alt payments."}, "traction": {"val": 3.5, "why": "$5B+ monthly monitoring impressive for age. Founded Jan 2024 — very early. Revenue not disclosed."}, "capitalEfficiency": {"val": 4, "why": "$5B monitoring volume on just $2.35M raised. Strong capital efficiency for infra company."}, "sdgImpact": {"val": 3.5, "why": "Protects consumers from fraud in digital payments. Indirect financial inclusion enabler. SDG 16."}}, "totalScore": 3.78, "signals": {"hiring": "Engineering roles in Cape Town.", "news": "Disrupt Africa Mar 2026.", "policy": "FSCA compliant. No specific licensing needed for fraud detection.", "appIntel": "B2B SaaS platform.", "social": "Thalia Pillay on LinkedIn."}, "primarySource": "Disrupt Africa", "secondarySource": "TechBuild Africa", "discoveryPath": "Found via Disrupt Africa Mar 2026. Norrsken22 portfolio confirmed.", "sourceLinks": ["Disrupt Africa Mar 2026", "TechBuild Africa", "Norrsken22 Portfolio"], "rank": 8}, {"name": "Axis", "website": "axisapp.com", "sector": "Core Payments", "subSector": "Digital Wallet", "hq": "Egypt", "markets": "Egypt", "marketCount": 1, "seedYear": 2022, "seedSize": 8.25, "totalRaised": 8.25, "leadInvestors": "Tiger Global, Sawari Ventures, Raba", "otherInvestors": "Firstminute Capital, RaliCap, Venmo/Rho/Cred founders", "syndicate": "Y", "syndicateTier": "Tier 1", "product": "Open-loop mobile wallet for SMEs and employees. CBE-licensed.", "customerSegment": "SMEs (8M micro-biz) and 20M employees", "traction": "axisPay with Visa; CBE license", "risks": "Tiger pullback from EM. Large seed. Crowded market.", "founders": {"names": "Jacques Marco (CEO), Ahmed Ragab (CTO), Nada Abdelnour (Co-founder)", "background": "Jacques: NYU economics/politics, HBS-Accion Inclusive Finance program. Co-founded Raseedy (Egypt's first independent mobile wallet, CBE-licensed, Mastercard partner, exited to MNT-Halan 2021).", "fit": "Already built and exited Egypt's first independent mobile wallet — proven regulatory navigation and PMF."}, "competitors": [{"name": "Vodafone Cash", "desc": "Dominant Egyptian mobile wallet, 55% market share"}, {"name": "Khazna", "desc": "Egyptian earned wage access and financial services for underbanked"}, {"name": "NowPay", "desc": "Egyptian earned wage access platform competing in payroll/financial services"}], "scores": {"founder": {"val": 5, "why": "Repeat founder: built and exited Egypt's first mobile wallet (Raseedy → MNT-Halan). HBS executive education. Proven CBE navigation."}, "competitive": {"val": 3, "why": "Vodafone Cash dominates (55% share). Crowded wallet market. Open-loop differentiates but unproven."}, "market": {"val": 4, "why": "8M micro-businesses, 20M employees. Egypt payroll digitization large TAM. Cash dependency high."}, "traction": {"val": 3, "why": "CBE license secured. Visa partnership. No public traction data post-2023."}, "capitalEfficiency": {"val": 3, "why": "$8.25M raised with limited visible traction. Tiger Global pullback creates follow-on risk."}, "sdgImpact": {"val": 4.5, "why": "Digitizes payroll for micro-businesses and employees. Deep financial inclusion. SDG 1, 8, 10."}}, "totalScore": 3.75, "signals": {"hiring": "Cairo-based team.", "news": "TechCrunch May 2023. Quiet since.", "policy": "CBE licensed. Visa partnership.", "appIntel": "axisPay app in Egypt.", "social": "Jacques Marco on LinkedIn."}, "primarySource": "TechCrunch", "secondarySource": "Crunchbase", "discoveryPath": "Found via TechCrunch May 2023. CBE license via Fintech Egypt portal.", "sourceLinks": ["TechCrunch May 2023", "Sawari Portfolio", "Fintech Egypt Portal"], "rank": 9}, {"name": "Happy Pay", "website": "happypay.co.za", "sector": "Lending & Credit", "subSector": "BNPL", "hq": "South Africa", "markets": "South Africa", "marketCount": 1, "seedYear": 2024, "seedSize": 1.8, "totalRaised": 1.8, "leadInvestors": "E4E Africa, 4Di Capital", "otherInvestors": "DotExe, Launch Africa, Equitable, Gaingels", "syndicate": "Y", "syndicateTier": "Tier 2", "product": "SA's only independent BNPL. Interest-free split payments.", "customerSegment": "Consumers (millennials/Gen Z)", "traction": "150K active users; 900% user growth", "risks": "Small raise. BNPL economics challenging. Regulated market.", "founders": {"names": "Wesley Billett (CEO), Patrick Postrehovsky (Co-CEO)", "background": "Wesley: BBA Brand Building Vega School, co-founded Vacation Club (8 yrs). Patrick: Cornell BBA, PMP, ex-PayPal Director (Platforms/Ecommerce), ex-CEO RentMoola, ex-SVP CostCertified.", "fit": "PayPal director experience + consumer brand expertise for consumer-facing BNPL."}, "competitors": [{"name": "Payflex", "desc": "SA's first BNPL provider (2018), split payments"}, {"name": "PayJustNow", "desc": "Popular SA BNPL splitting purchases into 3 interest-free payments"}, {"name": "Float", "desc": "Joburg-based BNPL using existing credit card limits"}], "scores": {"founder": {"val": 3.5, "why": "Patrick's PayPal director experience is strong. Wesley's brand expertise relevant for consumer. Not fintech-native founders."}, "competitive": {"val": 3, "why": "Payflex and PayJustNow already established. 'Only independent' positioning thin. BNPL globally struggling."}, "market": {"val": 3.5, "why": "SA consumer credit market regulated by NCA. BNPL demand exists but unit economics challenging globally."}, "traction": {"val": 4, "why": "150K active users and 900% growth are strong signals. But absolute numbers small at $1.8M raised."}, "capitalEfficiency": {"val": 4, "why": "150K users on $1.8M is strong user acquisition efficiency. Question is unit economics."}, "sdgImpact": {"val": 3, "why": "BNPL can enable access but also create debt burden. Mixed inclusion impact. SDG 8."}}, "totalScore": 3.55, "signals": {"hiring": "Small Cape Town team.", "news": "CIO Africa coverage.", "policy": "NCA (National Credit Act) regulated.", "appIntel": "Consumer app.", "social": "Wesley Billett on LinkedIn."}, "primarySource": "CIO Africa", "secondarySource": "Empower Africa", "discoveryPath": "Found via CIO Africa. Confirmed on 4Di Capital portfolio.", "sourceLinks": ["CIO Africa", "Empower Africa", "4Di Capital Portfolio"], "rank": 10}, {"name": "LittleFish", "website": "littlefish.app", "sector": "Embedded Finance", "subSector": "SME Banking Infra", "hq": "South Africa", "markets": "South Africa", "marketCount": 1, "seedYear": 2024, "seedSize": null, "totalRaised": null, "leadInvestors": "TLcom Capital", "otherInvestors": "Flourish Ventures", "syndicate": "Y", "syndicateTier": "Tier 1", "product": "Digital platform for banks to serve SMEs. Partners with banks.", "customerSegment": "Banks (B2B2B) and SMEs", "traction": "Visa partnership. TLcom's first SA investment.", "risks": "Undisclosed size. B2B2B long cycles. Competitive SA market.", "founders": {"names": "Brandon Roberts (CEO), Miod Davith Kahwa (Co-founder)", "background": "Roberts: enterprise software + African fintech background. Kahwa: co-founded nybble.africa & Creditinfo Tanzania (first TZ credit bureau), World Bank consultant, KPMG SA, Aspen Global Leadership Fellow.", "fit": "Credit bureau + World Bank consulting experience across multiple African markets positions them for SME banking infra."}, "competitors": [{"name": "Float", "desc": "African fintech offering SME banking and financial operations"}, {"name": "Lenco", "desc": "Nigerian digital banking platform for small businesses"}, {"name": "Brass", "desc": "Nigerian business banking with accounts and financial tools"}], "scores": {"founder": {"val": 3.5, "why": "Solid background but not exceptional public profile. Kahwa's credit bureau experience is strong. Limited visibility."}, "competitive": {"val": 3, "why": "SA SME banking crowded (Yoco, Lula, Tyme). B2B2B differentiates but also limits direct control."}, "market": {"val": 4, "why": "SA SMEs underserved by banks. B2B2B model lets banks serve SMEs they've historically ignored."}, "traction": {"val": 3, "why": "Visa partnership is signal. TLcom's first SA investment shows conviction. No revenue data."}, "capitalEfficiency": {"val": 3, "why": "Undisclosed round size makes assessment difficult. TLcom conviction is proxy for quality."}, "sdgImpact": {"val": 4.5, "why": "Directly enables banks to serve SMEs — deep financial inclusion. SDG 8, 9."}}, "totalScore": 3.45, "signals": {"hiring": "Small team in SA.", "news": "Disrupt Africa Oct 2024.", "policy": "SA banking regulation well-established.", "appIntel": "B2B platform.", "social": "Brandon Roberts on LinkedIn."}, "primarySource": "Disrupt Africa", "secondarySource": "Empower Africa", "discoveryPath": "Found via Disrupt Africa Oct 2024. TLcom first SA deal via portfolio page.", "sourceLinks": ["Disrupt Africa Oct 2024", "Empower Africa", "TLcom Portfolio"], "rank": 11}, {"name": "Flend", "website": "flend.co", "sector": "Lending & Credit", "subSector": "Embedded SME Lending", "hq": "Egypt", "markets": "Egypt", "marketCount": 1, "seedYear": 2025, "seedSize": 3, "totalRaised": 3, "leadInvestors": "Egypt Ventures", "otherInvestors": "Camel, Sukna, Plus VC, Banque Misr, family offices", "syndicate": "N", "syndicateTier": "No Tier 1-2", "product": "Digital short-term SME working capital via 20+ supply chain platforms.", "customerSegment": "SMEs ($50B financing gap)", "traction": "Targeting EGP 1B in loans. Licensed NBFI. 20+ integrations.", "risks": "Outside window. Credit risk. No Tier 1-2. EGP devaluation.", "founders": {"names": "Ahmed Zaki (CEO), Nehal Helmy, Saif Edeen El Bendari", "background": "Ahmed: BSc Int'l Business, MSc Financial Mathematics George Washington U., CFA. Ex-CIB Egypt banking. Founded Flend 2022. FRA-licensed Digital NBFI.", "fit": "Banking + quantitative finance training for tackling Egypt's $50B SME credit gap through embedded lending."}, "competitors": [{"name": "Fawry Microfinance", "desc": "Fawry's lending arm targeting Egyptian MSMEs"}, {"name": "Paymob Credit", "desc": "Paymob's embedded lending for merchants on its platform"}, {"name": "Contact Financial", "desc": "Egypt's largest non-bank financial services company"}], "scores": {"founder": {"val": 3.5, "why": "CFA + MSc Financial Math + CIB banking. Quantitative skills strong. First-time founder. Limited public profile."}, "competitive": {"val": 3, "why": "Fawry Microfinance and Paymob Credit are large incumbents. Embedded approach differentiates."}, "market": {"val": 4, "why": "Egypt $50B SME credit gap. Massive unmet demand. 20+ platform integrations show distribution."}, "traction": {"val": 3, "why": "FRA-licensed NBFI. 20+ integrations. Targeting EGP 1B but pre-scale. Visa Accelerator Cohort 4."}, "capitalEfficiency": {"val": 3, "why": "$3M raised. Credit businesses need capital for loan book. Challenging economics at scale."}, "sdgImpact": {"val": 4.5, "why": "Direct SME financial inclusion in Egypt. Working capital for underserved businesses. SDG 1, 8, 9."}}, "totalScore": 3.45, "signals": {"hiring": "Cairo team.", "news": "Empower Africa, Disrupt Africa Jul 2025.", "policy": "FRA licensed NBFI. Egyptian credit regulation.", "appIntel": "B2B platform via supply chain integrations.", "social": "Ahmed Zaki on LinkedIn."}, "primarySource": "Empower Africa", "secondarySource": "Disrupt Africa", "discoveryPath": "Found via Empower Africa. NBFI verified via FRA sandbox. Visa Accelerator Cohort 4.", "sourceLinks": ["Empower Africa", "Disrupt Africa Jul 2025", "FRA Sandbox", "Visa Accelerator Cohort 4"], "rank": 12}, {"name": "Duplo", "website": "tryduplo.com", "sector": "Core Payments", "subSector": "B2B Payments", "hq": "Nigeria", "markets": "Nigeria (expanding)", "marketCount": 2, "seedYear": 2022, "seedSize": 4.3, "totalRaised": 4.3, "leadInvestors": "Liquid2 Ventures, Y Combinator", "otherInvestors": "Soma Capital, Tribe Capital, Commerce Ventures, Oui Capital", "syndicate": "Y", "syndicateTier": "Tier 3", "product": "Financial OS for B2B: invoicing, reconciliation, collections.", "customerSegment": "FMCG distributors, finance teams", "traction": "YC W22. No public traction data.", "risks": "Geography edge. Fragmented syndicate. No traction data.", "founders": {"names": "Yele Oyekola (CEO), Emeka Okwuagwu (CTO), Tunde Akinnuwa (Co-founder)", "background": "Yele: BA Economics/Finance U. Reading, ex-GoldenTree Asset Mgmt, ex-UN Economic Policy, Product Lead at Carbon (built BNPL). Emeka: CS U. Lagos, ex-Union Bank, ex-ARCA Payments EM. Tunde: ex-Seedstars CM (launched Quickcheck/Lendigo), built JumiaPay Business.", "fit": "B2B payments engineering + UN economic policy + JumiaPay scaling = deep African business payment domain."}, "competitors": [{"name": "Okra", "desc": "Nigerian open finance API platform for business payments"}, {"name": "Mono", "desc": "Nigerian financial data API for B2B integrations"}, {"name": "Paystack", "desc": "Leading Nigerian payment gateway for SMEs"}], "scores": {"founder": {"val": 4, "why": "Strong trio: UN policy + Carbon product + JumiaPay ops. YC W22 validation. Deep Nigerian B2B understanding."}, "competitive": {"val": 3, "why": "Paystack, Okra, Mono all competing in Nigerian payments. No clear differentiation data available."}, "market": {"val": 4, "why": "Nigerian B2B payments heavily manual. FMCG distribution is massive market. Digitization inevitable."}, "traction": {"val": 2.5, "why": "No public traction data. YC W22 was 3+ years ago. Silence on traction is a concern."}, "capitalEfficiency": {"val": 3, "why": "$4.3M raised with no visible traction update. 45 investors is fragmented cap table."}, "sdgImpact": {"val": 3.5, "why": "Digitizes B2B payment flows for Nigerian businesses. Moderate financial inclusion. SDG 8, 9."}}, "totalScore": 3.35, "signals": {"hiring": "Lagos-based team.", "news": "TechCrunch Aug 2022. Quiet since.", "policy": "Nigerian PSP regulations.", "appIntel": "B2B platform.", "social": "Yele Oyekola on LinkedIn/Twitter."}, "primarySource": "TechCrunch", "secondarySource": "TechCabal", "discoveryPath": "Found via TechCrunch Aug 2022. YC confirmed via directory.", "sourceLinks": ["TechCrunch Aug 2022", "TechCabal", "Y Combinator Directory"], "rank": 13}, {"name": "Klasha", "website": "klasha.com", "sector": "Trade & Supply Chain Finance", "subSector": "Cross-Border Commerce", "hq": "Nigeria", "markets": "Nigeria, Zambia, TZ, UG, SA, Kenya", "marketCount": 6, "seedYear": 2022, "seedSize": 4.5, "totalRaised": 4.5, "leadInvestors": "Greycroft, Seedcamp", "otherInvestors": "Amex Ventures, Global Ventures", "syndicate": "Y", "syndicateTier": "Tier 3", "product": "Cross-border commerce enabling Africa-China trade.", "customerSegment": "Merchants (cross-border B2B)", "traction": "6 markets. Amex Ventures' first Africa investment.", "risks": "Older seed. No public traction. Capital-intensive.", "founders": {"names": "Jessica Anuna (Founder & CEO)", "background": "BA Journalism City U. London, MS Entrepreneurship & FinTech Cambridge. Ex-Amazon, Net-a-Porter, Shopify. Studied Mandarin at Imperial/Jiao Tong. Started logistics co in China. Forbes Africa 30u30.", "fit": "Cross-cultural e-commerce experience (Amazon/Shopify/China logistics) = direct insight into Africa-China trade friction."}, "competitors": [{"name": "Flutterwave", "desc": "Pan-African payment platform facilitating cross-border commerce"}, {"name": "Payoneer", "desc": "Global platform enabling cross-border commerce Africa-Asia"}, {"name": "Chipper Cash", "desc": "African cross-border payments for P2P and business"}], "scores": {"founder": {"val": 4, "why": "Cambridge fintech MS. Amazon/Shopify/Net-a-Porter pedigree. Mandarin speaker with China logistics startup. Forbes 30u30."}, "competitive": {"val": 3, "why": "Flutterwave, Payoneer are larger. Africa-China niche differentiates. No public traction data."}, "market": {"val": 4, "why": "Africa-China trade massive and growing. Cross-border payments high-friction. 6 markets."}, "traction": {"val": 2.5, "why": "No public traction data. Seed raised 2022 — silence on metrics concerning after 3+ years."}, "capitalEfficiency": {"val": 2.5, "why": "$4.5M raised 2022, no visible traction update. Capital-intensive cross-border model."}, "sdgImpact": {"val": 3.5, "why": "Enables African merchants to access global supply chains. Trade inclusion. SDG 8, 10."}}, "totalScore": 3.28, "signals": {"hiring": "Team across Lagos, London.", "news": "TechCrunch Jun 2022. Quiet since.", "policy": "Nigerian cross-border regulations.", "appIntel": "Merchant platform.", "social": "Jessica Anuna on LinkedIn/Twitter."}, "primarySource": "TechCrunch", "secondarySource": "Klasha Newsroom", "discoveryPath": "Found via TechCrunch Jun 2022. Amex first Africa deal via Amex PR.", "sourceLinks": ["TechCrunch Jun 2022", "Klasha Newsroom", "Amex Ventures PR", "Seedcamp Portfolio"], "rank": 14}, {"name": "Ezeebit", "website": "ezeebit.com", "sector": "Stablecoins & Digital Assets", "subSector": "Crypto Payments", "hq": "South Africa", "markets": "SA, Kenya, Nigeria", "marketCount": 3, "seedYear": 2025, "seedSize": 2.05, "totalRaised": 2.05, "leadInvestors": "Raba Partnership", "otherInvestors": "Founder Collective, Visa/Revolut/Talos execs", "syndicate": "Y", "syndicateTier": "Tier 2", "product": "FSCA-regulated stablecoin/crypto merchant payments.", "customerSegment": "Merchants", "traction": "30K+ txns; millions in GMV since 2023.", "risks": "Dec 2025 edge case. Crypto adoption nascent. Regulatory risk.", "founders": {"names": "Daniel Katz (CEO), Jonathan Katz, David Katz (Co-founders)", "background": "Daniel: BSc/MSc Electrical Engineering Wits. Co-founded Delve Systems (2019-2023, retail data analytics/predictive insights). FSCA-regulated.", "fit": "Engineering background + prior startup experience in data-driven retail tech for crypto merchant infrastructure."}, "competitors": [{"name": "Luno", "desc": "Major African crypto exchange for buying/selling in SA"}, {"name": "VALR", "desc": "SA crypto exchange that could compete in merchant crypto payments"}, {"name": "BitPay", "desc": "Global crypto payment processor for merchants"}], "scores": {"founder": {"val": 3, "why": "First major fintech venture. Engineering background solid but limited payments domain experience visible."}, "competitive": {"val": 3.5, "why": "FSCA regulation is differentiator. Luno/VALR are exchanges not merchant payments. BitPay is global threat."}, "market": {"val": 3.5, "why": "Crypto merchant payments nascent in Africa. Regulatory clarity emerging in SA (FSCA). 3 markets."}, "traction": {"val": 3, "why": "30K+ transactions modest. 'Millions in GMV' vague. FSCA regulated is positive signal."}, "capitalEfficiency": {"val": 3.5, "why": "$2.05M raised, 3 markets, FSCA regulated. Reasonable for stage."}, "sdgImpact": {"val": 3, "why": "Crypto payments for merchants. Moderate inclusion — stablecoins can reduce FX friction. SDG 8."}}, "totalScore": 3.25, "signals": {"hiring": "Small SA team.", "news": "Disrupt Africa Dec 2025.", "policy": "FSCA regulated — key differentiator.", "appIntel": "Merchant-facing platform.", "social": "Daniel Katz on LinkedIn."}, "primarySource": "Disrupt Africa", "secondarySource": "BitKE", "discoveryPath": "Found via Disrupt Africa Dec 2025. FSCA license verified.", "sourceLinks": ["Disrupt Africa Dec 2025", "BitKE", "FSCA Register", "Raba Portfolio"], "rank": 15}, {"name": "SETTLE", "website": "settle.eg", "sector": "Core Payments", "subSector": "B2B Treasury", "hq": "Egypt", "markets": "Egypt", "marketCount": 1, "seedYear": 2024, "seedSize": 2, "totalRaised": 2, "leadInvestors": "Shorooq Partners", "otherInvestors": "El Sewedy Capital, Acasia Ventures, Plus VC", "syndicate": "Y", "syndicateTier": "Tier 2", "product": "B2B payment platform connecting ERPs to banks.", "customerSegment": "Enterprises (construction, energy)", "traction": "$1M+ processed in testing. Pre-launch.", "risks": "Very early. Small raise. Long enterprise sales cycles.", "founders": {"names": "Kamil Sayour (Co-founder), Mostafa Mobarak (Co-founder)", "background": "Mobarak: ex-McKinsey Manager, Financial Analyst at Central Bank of Egypt, Managing Partner Solera, MS U. Penn. Sayour: ex-McKinsey Associate, ex-IBM Software Engineer, BSc AUC.", "fit": "McKinsey consulting rigor + Central Bank regulatory experience + technical engineering for enterprise treasury."}, "competitors": [{"name": "Flutterwave", "desc": "African payments platform with B2B payment capabilities"}, {"name": "PayU", "desc": "Global payment tech with treasury/B2B operations in Africa"}, {"name": "Network International", "desc": "Leading payment solutions provider in MEA"}], "scores": {"founder": {"val": 4, "why": "McKinsey + Central Bank of Egypt + IBM engineering. Strong pedigree for enterprise fintech. First-time founders."}, "competitive": {"val": 3.5, "why": "ERP-to-bank integration niche in Egypt. Few direct competitors. Long enterprise sales cycle risk."}, "market": {"val": 3.5, "why": "Egyptian enterprise treasury digitization needed but niche. Construction/energy verticals narrower TAM."}, "traction": {"val": 2, "why": "Pre-launch. $1M processed in testing only. Very early."}, "capitalEfficiency": {"val": 3, "why": "$2M pre-seed reasonable for stage. No traction to judge efficiency."}, "sdgImpact": {"val": 3, "why": "Enterprise treasury modernization. Indirect inclusion impact. SDG 8, 9."}}, "totalScore": 3.18, "signals": {"hiring": "Small Cairo team.", "news": "Wamda Sep 2024.", "policy": "Egypt CBE regulatory framework.", "appIntel": "B2B web platform.", "social": "Mostafa Mobarak on LinkedIn."}, "primarySource": "Wamda", "secondarySource": "Disrupt Africa", "discoveryPath": "Found via Wamda Sep 2024. Shorooq portfolio confirmed.", "sourceLinks": ["Wamda Sep 2024", "Disrupt Africa", "Shorooq Partners Portfolio"], "rank": 16}, {"name": "Scale", "website": "scale.co.za", "sector": "Financial Infrastructure", "subSector": "Card Issuing", "hq": "South Africa", "markets": "SA, Kenya, IC, Zambia", "marketCount": 4, "seedYear": 2024, "seedSize": 0.7, "totalRaised": 0.7, "leadInvestors": "54 Collective", "otherInvestors": "First Circle Capital, Sunny Side VP, angels", "syndicate": "N", "syndicateTier": "No Tier 1-2", "product": "Issuer orchestration (SOIL) for fintechs to launch cards.", "customerSegment": "Fintechs", "traction": "Mastercard partnership.", "risks": "Very small raise. Card issuing capital-intensive.", "founders": {"names": "Miranda Perumal (CEO), Roy Markham, Barbara Woolams", "background": "Miranda: Diploma Media Practice Boston Media House. Former Director at Visa. Prior experience at Tutuka and Paymentology in digital partnerships. Co-founded SwapVend Afrika.", "fit": "Director at Visa + experience at card-processing companies Tutuka/Paymentology = insider knowledge of card issuing."}, "competitors": [{"name": "Marqeta", "desc": "Global modern card issuing platform"}, {"name": "Stripe Issuing", "desc": "Stripe's card issuing product for platforms"}, {"name": "Paymentology", "desc": "SA-founded global issuer processor"}], "scores": {"founder": {"val": 3.5, "why": "Visa Director experience + Tutuka/Paymentology. Insider knowledge. Small team risk. Limited startup track record."}, "competitive": {"val": 3, "why": "Marqeta and Stripe Issuing are global competitors. Paymentology is SA-native. Very competitive space."}, "market": {"val": 3.5, "why": "African fintechs need card issuing infra. 4 markets. But TAM limited to fintech customers."}, "traction": {"val": 2.5, "why": "Mastercard partnership only visible signal. $700K is very small raise."}, "capitalEfficiency": {"val": 3, "why": "$700K is tiny. Card issuing needs capital. Mastercard partnership reduces costs."}, "sdgImpact": {"val": 3, "why": "Enables fintechs to issue cards — indirect inclusion. SDG 8, 9."}}, "totalScore": 3.1, "signals": {"hiring": "Small SA team.", "news": "Disrupt Africa Oct 2024.", "policy": "SA FSCA, expanding to Kenya.", "appIntel": "B2B infra platform.", "social": "Miranda Perumal on LinkedIn."}, "primarySource": "Disrupt Africa", "secondarySource": "TechPoint Africa", "discoveryPath": "Found via Disrupt Africa Oct 2024. First Circle Capital portfolio.", "sourceLinks": ["Disrupt Africa Oct 2024", "TechPoint Africa", "First Circle Capital", "CIPC Register"], "rank": 17}, {"name": "SubsBase", "website": "subsbase.com", "sector": "Financial Infrastructure", "subSector": "Recurring Billing", "hq": "Egypt", "markets": "Egypt, MENA", "marketCount": 2, "seedYear": 2022, "seedSize": 2.4, "totalRaised": 2.4, "leadInvestors": "Global Ventures", "otherInvestors": "HALA, P1, Plus VC, Plug and Play, Ingressive, Camel, Falak, Arzan", "syndicate": "Y", "syndicateTier": "Tier 3", "product": "Cloud subscription/billing management.", "customerSegment": "SaaS and subscription businesses", "traction": "Not disclosed.", "risks": "No traction. Niche. Global competitors. Fragmented syndicate.", "founders": {"names": "Mohamed M. Farag (CEO), Sherif Aziz (CBO)", "background": "Mohamed: BSc Electromechanical Eng Alexandria U., ex-ESW Capital (led technical DD on 30+ acquisitions totaling $150M+). Sherif: 5 yrs Microsoft sales (Africa cloud launch), ex-Backbase, ex-Mambu ME expansion, ex-CCO RiseUp.", "fit": "SaaS acquisition engineering + Microsoft/Mambu enterprise sales = technical + commercial DNA for billing platform."}, "competitors": [{"name": "Chargebee", "desc": "Global subscription billing platform"}, {"name": "Recurly", "desc": "Subscription management and recurring billing"}, {"name": "Paddle", "desc": "Revenue delivery platform for SaaS companies"}], "scores": {"founder": {"val": 3.5, "why": "Mohamed's SaaS DD experience strong. Sherif's Microsoft/Mambu enterprise sales. Solid but not exceptional."}, "competitive": {"val": 2.5, "why": "Chargebee, Recurly, Paddle are global giants. No clear differentiation for MENA market."}, "market": {"val": 3, "why": "Subscription billing niche in Egypt/MENA. Small addressable market vs payments TAM."}, "traction": {"val": 2, "why": "No disclosed traction. Seed raised Aug 2022 — 3+ years with no public metrics."}, "capitalEfficiency": {"val": 2.5, "why": "$2.4M raised with no visible traction. 8 investors = fragmented cap table."}, "sdgImpact": {"val": 2.5, "why": "SaaS billing tooling. Limited financial inclusion impact. SDG 8."}}, "totalScore": 2.7, "signals": {"hiring": "Small Cairo team.", "news": "TechCrunch Aug 2022. Silent since.", "policy": "No specific licensing needed.", "appIntel": "B2B SaaS.", "social": "Mohamed Farag on LinkedIn."}, "primarySource": "TechCrunch", "secondarySource": "Disrupt Africa", "discoveryPath": "Found via TechCrunch Aug 2022. Global Ventures portfolio confirmed.", "sourceLinks": ["TechCrunch Aug 2022", "Disrupt Africa", "Global Ventures Portfolio", "Crunchbase"], "rank": 18}, {"name": "Credit Circuit", "website": "creditcircuit.co.za", "sector": "Trade & Supply Chain Finance", "subSector": "Receivables Financing", "hq": "South Africa", "markets": "South Africa", "marketCount": 1, "seedYear": 2023, "seedSize": null, "totalRaised": null, "leadInvestors": "Launch Africa Ventures", "otherInvestors": "N/A", "syndicate": "N", "syndicateTier": "Tier 3", "product": "Off-balance-sheet working capital secured against receivables.", "customerSegment": "Businesses", "traction": "Not disclosed. Founder: 19 yrs actuarial/risk.", "risks": "Undisclosed everything. Single investor.", "founders": {"names": "Roan Stoop (CEO), Morne Stoop (CTO)", "background": "Roan: Actuarial Science U. Johannesburg, 19 yrs insurance/risk at Discovery, Eikos Risk Capital, Absa. Morne: BSc UNISA, ex-Kurtosys, ex-Woolworths, ex-Hollard Insurance, ex-Old Mutual Insure.", "fit": "Actuarial background + 19 years risk quantification for underwriting and pricing receivables financing."}, "competitors": [{"name": "Bridgement", "desc": "SA invoice financing and short-term business funding"}, {"name": "Lulalend (now Lula)", "desc": "SA SME working capital provider"}, {"name": "Merchant Capital", "desc": "SA revenue-based financing for SMEs"}], "scores": {"founder": {"val": 3, "why": "19 yrs actuarial experience is deep domain. But first-time founders. Brothers (family dynamics risk). No fintech track record."}, "competitive": {"val": 3, "why": "Bridgement, Lula, Merchant Capital all in SA SME finance. Receivables-specific angle differentiates slightly."}, "market": {"val": 3, "why": "SA trade finance needed. Single market. Receivables niche is smaller than broader SME lending."}, "traction": {"val": 1.5, "why": "No disclosed traction at all. Undisclosed funding. Single investor. Minimal public presence."}, "capitalEfficiency": {"val": 2, "why": "Undisclosed raise. No traction data. Cannot assess."}, "sdgImpact": {"val": 3, "why": "Working capital for businesses. Moderate financial inclusion. SDG 8."}}, "totalScore": 2.55, "signals": {"hiring": "Unknown.", "news": "None.", "policy": "SA FSCA for credit products.", "appIntel": "Unknown.", "social": "Roan Stoop on LinkedIn."}, "primarySource": "Launch Africa Portfolio", "secondarySource": "LinkedIn", "discoveryPath": "Found via Launch Africa Ventures portfolio scan. CIPC verified.", "sourceLinks": ["Launch Africa Portfolio", "LinkedIn", "CIPC Register"], "rank": 19}, {"name": "Bokra", "website": "bokra.app", "sector": "Embedded Finance", "subSector": "Wealthtech", "hq": "Egypt", "markets": "Egypt", "marketCount": 1, "seedYear": 2024, "seedSize": 4.6, "totalRaised": 4.6, "leadInvestors": "DisrupTech Ventures", "otherInvestors": "SS Capital", "syndicate": "N", "syndicateTier": "No Tier 1-2", "product": "Wealthtech for retail/SME investors in MENA.", "customerSegment": "Retail consumers and SMEs", "traction": "Pre-launch. $4.6M pre-seed large for Egypt.", "risks": "No traction. Sector edge case. No Tier 1-2.", "founders": {"names": "Ayman Elsawy (CEO & Founder)", "background": "MBA Finance from Arab Academy. 21-25 yrs financial services: financial engineering, portfolio management, structured finance. Ex-Contact Financial Holding, ex-Sarwa, ex-Fixed Income Association Egypt. FRA licensed.", "fit": "Two decades in non-banking financial services and debt instruments for building MENA wealthtech."}, "competitors": [{"name": "Thndr", "desc": "Egyptian investment app for stocks and funds"}, {"name": "Sarwa", "desc": "UAE-based robo-advisor expanding in MENA"}, {"name": "Wahed Invest", "desc": "Sharia-compliant investment platform in MENA"}], "scores": {"founder": {"val": 3, "why": "20+ years financial services is deep. But first-time founder. Solo founder. Limited tech background visible."}, "competitive": {"val": 2.5, "why": "Thndr already established in Egypt investments. Sarwa and Wahed expanding. Crowded wealthtech."}, "market": {"val": 3, "why": "MENA wealthtech growing. Egypt retail investment nascent."}, "traction": {"val": 1.5, "why": "Pre-launch. No traction data. $4.6M pre-seed with no product is concerning."}, "capitalEfficiency": {"val": 2, "why": "$4.6M raised with no product launched. Poor capital efficiency signal."}, "sdgImpact": {"val": 3, "why": "Democratizing investment access. But targets investors, not unbanked. SDG 8."}}, "totalScore": 2.48, "signals": {"hiring": "Cairo team.", "news": "Wamda Apr 2024.", "policy": "FRA licensed.", "appIntel": "App not launched.", "social": "Ayman Elsawy on LinkedIn."}, "primarySource": "Wamda", "secondarySource": "Fintech News Africa", "discoveryPath": "Found via Wamda Apr 2024. DisrupTech portfolio confirmed.", "sourceLinks": ["Wamda Apr 2024", "Fintech News Africa", "DisrupTech Portfolio"], "rank": 20}, {"name": "MNZL", "website": "mnzl.com", "sector": "Lending & Credit", "subSector": "Asset-Backed Lending", "hq": "Egypt", "markets": "Egypt", "marketCount": 1, "seedYear": 2024, "seedSize": 3.5, "totalRaised": 3.5, "leadInvestors": "P1 Ventures, Localglobe", "otherInvestors": "Ingressive Capital, 500 Startups, Flat6Labs, Enza Capital, First Circle Capital", "syndicate": "Y", "syndicateTier": "Tier 3", "product": "Asset-backed lending — Egyptian home/car owners borrow against digital wallet assets. FRA-licensed.", "customerSegment": "Egyptian consumers (<10% have credit access)", "traction": "FRA regulatory approval. <10% Egyptian adults have credit access (massive TAM).", "risks": "Novel model unproven in Egypt. Credit risk. EGP devaluation.", "founders": {"names": "Not publicly disclosed", "background": "Secured FRA regulatory license — strong regulatory navigation. Built multi-investor syndicate including Localglobe (top-tier European seed fund).", "fit": "Strong regulatory execution in Egypt's lending space."}, "competitors": [{"name": "Shahry", "desc": "Egyptian BNPL platform for consumer purchases"}, {"name": "Contact", "desc": "Egyptian consumer finance company (established player)"}, {"name": "Sympl", "desc": "Egyptian BNPL/installment payments platform"}], "scores": {"founder": {"val": 3.0, "why": "Names not publicly disclosed. FRA license shows regulatory execution. Multi-investor syndicate signals credibility."}, "competitive": {"val": 4.0, "why": "Novel asset-backed model differentiates from BNPL competitors. Shahry, Contact, Sympl are installment-focused."}, "market": {"val": 4.0, "why": "<10% of Egyptians have credit access — massive underserved TAM. Asset-backed lending is a new wedge."}, "traction": {"val": 2.0, "why": "FRA regulatory approval is meaningful. But no revenue/volume data disclosed."}, "capitalEfficiency": {"val": 2.5, "why": "$3.5M raised with no disclosed traction metrics. Lending is capital-intensive."}, "sdgImpact": {"val": 4.5, "why": "Directly addresses financial exclusion — <10% credit penetration. Unlocks asset value for underserved consumers. SDG 1, 10."}}, "totalScore": 3.17, "signals": {"hiring": "Egypt team.", "news": "Disrupt Africa coverage.", "policy": "FRA licensed.", "appIntel": "Not disclosed.", "social": "LinkedIn."}, "primarySource": "Second Pass", "secondarySource": "Disrupt Africa", "discoveryPath": "Second pass — found via Disrupt Africa. P1 + Localglobe syndicate flagged.", "sourceLinks": ["Disrupt Africa", "Crunchbase"], "rank": 21}, {"name": "Munify", "website": "munify.ai", "sector": "Embedded Finance", "subSector": "Diaspora Banking", "hq": "Egypt", "markets": "Egypt, US, UK, Europe, GCC", "marketCount": 5, "seedYear": 2025, "seedSize": 4.5, "totalRaised": 4.5, "leadInvestors": "Y Combinator", "otherInvestors": "White Star Capital, BYLD, Rebel Fund, DCG", "syndicate": "Y", "syndicateTier": "Tier 3", "product": "Cross-border digital bank for Egyptian diaspora. Instant remittances + US bank account + FX hedging. YC S25.", "customerSegment": "Egyptian diaspora (US, UK, Europe, GCC)", "traction": "Signed contracts for projected $50M+ monthly cross-border volume.", "risks": "Diaspora neobank competitive. Multi-jurisdiction regulatory. Pre-revenue.", "founders": {"names": "Khalid Ashmawy (CEO)", "background": "Ex-Microsoft, ex-Uber. Co-founder of Huspy (UAE proptech). Y Combinator S25 batch.", "fit": "Repeat founder with big-tech + startup experience. Cross-border + diaspora domain."}, "competitors": [{"name": "Telda", "desc": "Egyptian digital bank targeting millennials/Gen Z"}, {"name": "Rise", "desc": "Cross-border neobank for African diaspora"}, {"name": "Nala", "desc": "African remittance and payments app"}], "scores": {"founder": {"val": 4.0, "why": "Khalid Ashmawy — ex-Microsoft, ex-Uber, co-founded Huspy. YC S25. Strong repeat founder signal."}, "competitive": {"val": 3.0, "why": "Diaspora neobank is competitive globally. Telda, Rise, Nala are all in the space. Egypt-specific focus is differentiator."}, "market": {"val": 4.0, "why": "Egyptian diaspora remittances are massive. Multi-jurisdiction coverage (US, UK, GCC). Growing digitally native diaspora."}, "traction": {"val": 2.0, "why": "Pre-revenue. Signed contracts for projected $50M+ monthly volume — but projections, not actual."}, "capitalEfficiency": {"val": 2.0, "why": "$4.5M raised pre-revenue. Banking product requires significant capital. Not yet efficient."}, "sdgImpact": {"val": 4.0, "why": "Reduces remittance costs for Egyptian diaspora. SDG 10.c (reduce transaction costs of migrant remittances)."}}, "totalScore": 3.1, "signals": {"hiring": "Egypt + US team.", "news": "YC S25 batch.", "policy": "Multi-jurisdiction.", "appIntel": "Pre-launch.", "social": "Khalid Ashmawy on LinkedIn."}, "primarySource": "Second Pass", "secondarySource": "YC Directory", "discoveryPath": "Second pass — found via YC S25 directory. Egyptian diaspora banking thesis.", "sourceLinks": ["YC Directory", "LinkedIn"], "rank": 22}, {"name": "TurnStay", "website": "turnstay.com", "sector": "Stablecoins & Digital Assets", "subSector": "Travel Payments", "hq": "South Africa", "markets": "South Africa, African travel markets", "marketCount": 2, "seedYear": 2025, "seedSize": 2.0, "totalRaised": 2.0, "leadInvestors": "First Circle Capital", "otherInvestors": "TLcom Capital, Enza Capital, Incisive Ventures, CVVC", "syndicate": "Y", "syndicateTier": "Tier 1", "product": "Travel payments via merchant-of-record model + stablecoin settlement. Lowers fees by up to 70%.", "customerSegment": "Travel industry (hotels, tourism operators)", "traction": "ZAR 250M+ (~$14M) processed since pre-seed.", "risks": "Niche travel vertical. Stablecoin regulatory risk. Small market.", "founders": {"names": "Not publicly disclosed (spun out of travel tech)", "background": "Spun out of travel technology sector. TLcom + Enza backing signals strong team validation.", "fit": "Travel payments + stablecoin settlement intersection."}, "competitors": [{"name": "Peach Payments", "desc": "South African online payments gateway"}, {"name": "Flywire", "desc": "Global vertical-specific payments platform"}, {"name": "dLocal", "desc": "LatAm/emerging market cross-border payments"}], "scores": {"founder": {"val": 3.0, "why": "Names not public. Travel tech spin-out. TLcom + Enza backing is strong validation."}, "competitive": {"val": 3.0, "why": "Niche travel vertical is both differentiator and limitation. Peach, Flywire, dLocal are broader competitors."}, "market": {"val": 3.0, "why": "African travel payments is a real market. But niche — small compared to general payments TAM."}, "traction": {"val": 3.0, "why": "ZAR 250M+ (~$14M) processed is real volume for a pre-seed. But small in absolute terms."}, "capitalEfficiency": {"val": 3.0, "why": "$14M processed on $2M raised = 7x ratio. Decent for early stage, not exceptional."}, "sdgImpact": {"val": 2.5, "why": "Reduces payment costs for travel sector. Indirect financial inclusion. Limited SDG alignment."}}, "totalScore": 2.95, "signals": {"hiring": "SA team.", "news": "Disrupt Africa.", "policy": "Stablecoin settlement.", "appIntel": "B2B.", "social": "LinkedIn."}, "primarySource": "Second Pass", "secondarySource": "Disrupt Africa", "discoveryPath": "Second pass — found via Disrupt Africa. TLcom + Enza syndicate flagged.", "sourceLinks": ["Disrupt Africa", "TLcom Portfolio"], "rank": 23}, {"name": "Zazu", "website": "zazu.africa", "sector": "Embedded Finance", "subSector": "SME Banking", "hq": "South Africa", "markets": "South Africa, Morocco", "marketCount": 2, "seedYear": 2025, "seedSize": 1.0, "totalRaised": 1.0, "leadInvestors": "Plug and Play Ventures", "otherInvestors": "Angels from Launch Africa, Paymentology, Chari, Qonto/Solarisbank founders", "syndicate": "N", "syndicateTier": "No Tier 1-2", "product": "Mercury for Africa — digital financial OS for SMEs (banking, payroll, compliance).", "customerSegment": "African SMEs", "traction": "50+ SMEs in beta, 1,000+ waitlist.", "risks": "Very early. European founders. Competitive SME banking.", "founders": {"names": "Ex-Solarisbank executives (names not publicly disclosed)", "background": "Former Solarisbank executives — European banking-as-a-service platform. Operator angels from Qonto, Paymentology, Chari.", "fit": "Banking infrastructure expertise from Solarisbank. Need to prove Africa market fit."}, "competitors": [{"name": "Prospa", "desc": "Nigerian SME digital bank"}, {"name": "Brass", "desc": "Nigerian business banking platform"}, {"name": "LittleFish", "desc": "South African SME neobank"}], "scores": {"founder": {"val": 3.0, "why": "Ex-Solarisbank execs — strong banking infra background. European founders pivoting to Africa is a risk."}, "competitive": {"val": 3.0, "why": "SME banking is crowded. Prospa, Brass are established in Nigeria. LittleFish in SA. Mercury-for-Africa positioning is ambitious."}, "market": {"val": 4.0, "why": "African SME banking is massive and underserved. SA + Morocco is an interesting gateway strategy."}, "traction": {"val": 1.0, "why": "50 SMEs in beta and 1K waitlist. Very early stage. No revenue data."}, "capitalEfficiency": {"val": 2.0, "why": "$1M raised. Too early to assess efficiency. Banking products require significant capital."}, "sdgImpact": {"val": 3.5, "why": "SME financial inclusion is core thesis. But very early to assess real impact. SDG 8."}}, "totalScore": 2.68, "signals": {"hiring": "SA team.", "news": "LinkedIn.", "policy": "SA + Morocco.", "appIntel": "Beta.", "social": "LinkedIn."}, "primarySource": "Second Pass", "secondarySource": "LinkedIn", "discoveryPath": "Second pass — found via LinkedIn. Ex-Solarisbank founders building for Africa SMEs.", "sourceLinks": ["LinkedIn", "Plug and Play Portfolio"], "rank": 24}, {"name": "NjiaPay", "website": "njiapay.com", "sector": "Core Payments", "subSector": "Payment Orchestration", "hq": "South Africa", "markets": "South Africa, expanding pan-African", "marketCount": 2, "seedYear": 2026, "seedSize": 2.1, "totalRaised": 3.1, "leadInvestors": "Newion", "otherInvestors": "Prior $1M round investors", "syndicate": "N", "syndicateTier": "No Tier 1-2", "product": "Payment orchestration on top of existing PSPs. Real-time routing. Spun out of Talk360.", "customerSegment": "Merchants with multiple PSPs", "traction": "Card Account Updater launch planned (first in SA). Talk360 operational heritage.", "risks": "Very recent. Competes with Precium. No African investor signal.", "founders": {"names": "Ex-Adyen executive (8+ yrs, name not public). Spun out of Talk360.", "background": "8+ years at Adyen — one of the world's leading payment processors. Spun out of Talk360 (African airtime/top-up platform).", "fit": "Deep payments domain expertise from Adyen. Talk360 gives African operational heritage."}, "competitors": [{"name": "Precium", "desc": "Africa-focused payment orchestration (25+ markets, 70+ methods)"}, {"name": "MoneyHash", "desc": "MEA payment orchestration (200+ providers)"}, {"name": "Stitch (Stripe)", "desc": "South African payment infrastructure (acquired by Stripe)"}], "scores": {"founder": {"val": 4.0, "why": "Ex-Adyen (8+ yrs) is top-tier payments pedigree. Talk360 spin-out gives African context."}, "competitive": {"val": 3.0, "why": "Directly competes with Precium and MoneyHash. Late entrant. Card Account Updater is unique but niche."}, "market": {"val": 4.0, "why": "Payment orchestration in Africa is a proven need. Precium and MoneyHash validate the market."}, "traction": {"val": 2.0, "why": "Very early. Card Account Updater planned but not launched. Talk360 heritage is operational, not revenue."}, "capitalEfficiency": {"val": 2.0, "why": "$3.1M total raised. Very early to assess. No volume/revenue data."}, "sdgImpact": {"val": 3.0, "why": "Payment orchestration enables merchant acceptance — indirect financial inclusion. SDG 8."}}, "totalScore": 3.1, "signals": {"hiring": "SA team.", "news": "Disrupt Africa Mar 2026.", "policy": "SA first.", "appIntel": "B2B.", "social": "LinkedIn."}, "primarySource": "Second Pass", "secondarySource": "Disrupt Africa", "discoveryPath": "Second pass — found via Disrupt Africa Mar 2026. Ex-Adyen founder + payment orchestration thesis.", "sourceLinks": ["Disrupt Africa", "LinkedIn"], "rank": 25}];
+const WEIGHTS = {"founder":0.2,"competitive":0.15,"market":0.2,"traction":0.2,"capitalEfficiency":0.15,"sdgImpact":0.1};
+const DIM_LABELS = {"founder":"Founder","competitive":"Competitive","market":"Market","traction":"Traction","capitalEfficiency":"Capital Efficiency","sdgImpact":"SDG / Impact"};
+const DIM_COLORS = {"founder":"#6366f1","competitive":"#f97316","market":"#22c55e","traction":"#06b6d4","capitalEfficiency":"#eab308","sdgImpact":"#ec4899"};
+
+function recalcScore(c) {
+  let t = 0;
+  for (const [d, w] of Object.entries(WEIGHTS)) t += (c.scores[d]?.val || 0) * w;
+  c.totalScore = Math.round(t * 100) / 100;
+}
+function rerank() {
+  companies.sort((a, b) => b.totalScore - a.totalScore);
+  companies.forEach((c, i) => c.rank = i + 1);
+}
+
+// ============================================================
+// RENDERING
+// ============================================================
+let currentSort = {key:'rank', asc:true};
+let radarChart = null;
+
+function scoreBadgeClass(s) { return s >= 4 ? 'badge-green' : s >= 3.5 ? 'badge-cyan' : s >= 3 ? 'badge-yellow' : 'badge-red'; }
+
+function renderStats(filtered) {
+  const el = document.getElementById('stats-bar');
+  const avgScore = filtered.length ? (filtered.reduce((s,c) => s + c.totalScore, 0) / filtered.length).toFixed(2) : '0';
+  const totalRaised = filtered.reduce((s,c) => s + (c.totalRaised || 0), 0).toFixed(1);
+  const sas = filtered.filter(c => c.hq === 'South Africa').length;
+  const egs = filtered.filter(c => c.hq === 'Egypt').length;
+  const strong = filtered.filter(c => c.syndicate === 'Y').length;
+  const sectors = new Set(filtered.map(c => c.sector)).size;
+  el.innerHTML = `
+    <div class="stat-card"><div class="label">Companies</div><div class="value">${filtered.length}</div><div class="sub">in filtered view</div></div>
+    <div class="stat-card"><div class="label">Avg Score</div><div class="value">${avgScore}</div><div class="sub">weighted composite</div></div>
+    <div class="stat-card"><div class="label">Total Raised</div><div class="value">$${totalRaised}M</div><div class="sub">disclosed only</div></div>
+    <div class="stat-card"><div class="label">Geography</div><div class="value">${sas} SA · ${egs} EG</div><div class="sub">${filtered.length - sas - egs} other</div></div>
+    <div class="stat-card"><div class="label">Strong Syndicate</div><div class="value">${strong}/${filtered.length}</div><div class="sub">Tier 1-2 investors</div></div>
+    <div class="stat-card"><div class="label">Sectors</div><div class="value">${sectors}</div><div class="sub">unique sectors</div></div>`;
+}
+
+function renderTable(filtered) {
+  const tb = document.getElementById('table-body');
+  tb.innerHTML = filtered.map(c => `<tr onclick="openDetail('${c.name.replace(/'/g,"\\'")}')">
+    <td>${c.rank}</td>
+    <td><span class="company-name">${c.name}</span></td>
+    <td><span class="badge badge-purple">${c.subSector}</span></td>
+    <td>${c.hq}</td>
+    <td style="font-size:12px;max-width:160px;overflow:hidden;text-overflow:ellipsis">${c.founders?.names?.split(',')[0] || '—'}</td>
+    <td>${c.seedYear}</td>
+    <td>${c.totalRaised ? '$' + c.totalRaised + 'M' : 'Undisclosed'}</td>
+    <td><span class="badge ${c.syndicateTier === 'Tier 1' ? 'badge-green' : c.syndicateTier === 'Tier 2' ? 'badge-cyan' : 'badge-yellow'}">${c.syndicateTier}</span></td>
+    <td><span class="score-pill ${scoreBadgeClass(c.totalScore)}" title="Click row for score breakdown">${c.totalScore.toFixed(2)}</span></td>
+    <td style="font-size:12px">${c.primarySource}</td>
+  </tr>`).join('');
+  document.getElementById('row-count').textContent = filtered.length;
+  document.getElementById('total-count').textContent = companies.length;
+}
+
+function getFiltered() {
+  const search = document.getElementById('filter-search').value.toLowerCase();
+  const sector = document.getElementById('filter-sector').value;
+  const geo = document.getElementById('filter-geo').value;
+  const syn = document.getElementById('filter-syndicate').value;
+  const min = parseFloat(document.getElementById('filter-minscore').value);
+  return companies.filter(c => {
+    if (search && !(c.name+c.leadInvestors+c.otherInvestors+c.founders?.names+c.product+c.hq).toLowerCase().includes(search)) return false;
+    if (sector && c.sector !== sector) return false;
+    if (geo && c.hq !== geo) return false;
+    if (syn && c.syndicate !== syn) return false;
+    if (c.totalScore < min) return false;
+    return true;
+  });
+}
+
+function applyFilters() {
+  const f = getFiltered();
+  const key = currentSort.key;
+  f.sort((a, b) => {
+    let va = a[key], vb = b[key];
+    if (typeof va === 'string') { va = va.toLowerCase(); vb = (vb||'').toLowerCase(); }
+    if (va == null) va = 0; if (vb == null) vb = 0;
+    return currentSort.asc ? (va > vb ? 1 : -1) : (va < vb ? 1 : -1);
+  });
+  renderStats(f);
+  renderTable(f);
+}
+
+function resetFilters() {
+  document.getElementById('filter-search').value = '';
+  document.getElementById('filter-sector').value = '';
+  document.getElementById('filter-geo').value = '';
+  document.getElementById('filter-syndicate').value = '';
+  document.getElementById('filter-minscore').value = '0';
+  currentSort = {key:'rank', asc:true};
+  applyFilters();
+}
+
+// ============================================================
+// DETAIL PANEL WITH SCORE EXPLAINABILITY
+// ============================================================
+function openDetail(name) {
+  const c = companies.find(x => x.name === name);
+  if (!c) return;
+  const overlay = document.getElementById('detail-overlay');
+  const panel = document.getElementById('detail-panel');
+
+  const scoreExplainHTML = Object.entries(DIM_LABELS).map(([dim, label]) => {
+    const s = c.scores[dim];
+    const pct = ((s?.val || 0) / 5 * 100);
+    const color = DIM_COLORS[dim];
+    const weight = (WEIGHTS[dim] * 100).toFixed(0);
+    return `<div class="score-explain">
+      <div class="dim-header">
+        <span class="dim-name" style="color:${color}">${label} <span style="font-size:10px;color:var(--text-muted)">(${weight}%)</span></span>
+        <span class="dim-val">${s?.val || 0}/5</span>
+      </div>
+      <div class="dim-why">${s?.why || 'No explanation available.'}</div>
+      <div class="dim-bar"><div class="dim-fill" style="width:${pct}%;background:${color}"></div></div>
+      <div style="margin-top:6px"><input class="edit-score-input" type="number" min="1" max="5" step="0.5" value="${s?.val || 3}" onchange="updateScore('${c.name.replace(/'/g,"\\'")}','${dim}',this.value)"> <span style="font-size:10px;color:var(--text-muted)">edit score</span></div>
+    </div>`;
+  }).join('');
+
+  const competitorHTML = (c.competitors || []).map(comp =>
+    `<div class="competitor-card"><div class="comp-name">${comp.name}</div><div class="comp-desc">${comp.desc}</div></div>`
+  ).join('') || '<div style="color:var(--text-muted);font-size:13px">No competitor data.</div>';
+
+  const signalHTML = c.signals ? `<div class="signal-grid">
+    <div class="signal-item"><div class="sig-label">Hiring</div><div class="sig-val">${c.signals.hiring || '—'}</div></div>
+    <div class="signal-item"><div class="sig-label">News</div><div class="sig-val">${c.signals.news || '—'}</div></div>
+    <div class="signal-item"><div class="sig-label">Policy / Regulation</div><div class="sig-val">${c.signals.policy || '—'}</div></div>
+    <div class="signal-item"><div class="sig-label">App Intelligence</div><div class="sig-val">${c.signals.appIntel || '—'}</div></div>
+    <div class="signal-item"><div class="sig-label">Social / Online</div><div class="sig-val">${c.signals.social || '—'}</div></div>
+  </div>` : '';
+
+  panel.innerHTML = `
+    <button class="close-btn" onclick="closeDetail()">×</button>
+    <h2>${c.name}</h2>
+    <div class="subtitle">${c.subSector} · ${c.hq} · ${c.markets} · <a href="https://${c.website}" target="_blank" style="color:var(--accent-light)">${c.website}</a></div>
+
+    <div class="detail-section">
+      <h3>Founders</h3>
+      <div style="font-size:14px;font-weight:600;margin-bottom:4px;color:var(--cyan)">${c.founders?.names || 'Unknown'}</div>
+      <div class="detail-text">${c.founders?.background || 'No background data.'}</div>
+      <div style="margin-top:6px;font-size:12px;color:var(--green)"><strong>Founder-Market Fit:</strong> ${c.founders?.fit || '—'}</div>
+    </div>
+
+    <div class="detail-section">
+      <h3>Score Breakdown <span style="font-size:11px;font-weight:400;color:var(--text-muted)">(weighted total: ${c.totalScore.toFixed(2)})</span></h3>
+      ${scoreExplainHTML}
+    </div>
+
+    <div class="detail-section">
+      <h3>Radar Chart</h3>
+      <div class="radar-container"><canvas id="radar-canvas"></canvas></div>
+    </div>
+
+    <div class="detail-section">
+      <h3>Competitors</h3>
+      ${competitorHTML}
+    </div>
+
+    <div class="detail-section">
+      <h3>Extra Signals</h3>
+      ${signalHTML}
+    </div>
+
+    <div class="detail-section">
+      <h3>Company Overview</h3>
+      <div class="detail-grid">
+        <div class="detail-field"><div class="label">Product</div><div class="val" style="white-space:normal">${c.product}</div></div>
+        <div class="detail-field"><div class="label">Customers</div><div class="val">${c.customerSegment}</div></div>
+        <div class="detail-field"><div class="label">Traction</div><div class="val" style="white-space:normal">${c.traction}</div></div>
+        <div class="detail-field"><div class="label">Risks</div><div class="val" style="white-space:normal;color:var(--orange)">${c.risks}</div></div>
+      </div>
+    </div>
+
+    <div class="detail-section">
+      <h3>Deal Info</h3>
+      <div class="detail-grid">
+        <div class="detail-field"><div class="label">Seed Year</div><div class="val">${c.seedYear}</div></div>
+        <div class="detail-field"><div class="label">Total Raised</div><div class="val">${c.totalRaised ? '$'+c.totalRaised+'M' : 'Undisclosed'}</div></div>
+        <div class="detail-field"><div class="label">Lead Investors</div><div class="val">${c.leadInvestors}</div></div>
+        <div class="detail-field"><div class="label">Other Investors</div><div class="val" style="white-space:normal">${c.otherInvestors}</div></div>
+        <div class="detail-field"><div class="label">Syndicate</div><div class="val"><span class="badge ${c.syndicate==='Y'?'badge-green':'badge-red'}">${c.syndicate==='Y'?'Strong':'Weak'}</span> ${c.syndicateTier}</div></div>
+        <div class="detail-field"><div class="label">Filter Notes</div><div class="val" style="white-space:normal;font-size:12px">${c.filterNotes || '—'}</div></div>
+      </div>
+    </div>
+
+    <div class="detail-section">
+      <h3>Source Provenance</h3>
+      <div class="detail-text" style="margin-bottom:8px">${c.discoveryPath}</div>
+      <div>${(c.sourceLinks||[]).map(s => '<span class="source-tag">'+s+'</span>').join(' ')}</div>
+    </div>`;
+
+  overlay.classList.add('open');
+  setTimeout(() => renderRadar(c), 100);
+}
+
+function closeDetail() { document.getElementById('detail-overlay').classList.remove('open'); if (radarChart) { radarChart.destroy(); radarChart = null; } }
+
+function updateScore(name, dim, val) {
+  const c = companies.find(x => x.name === name);
+  if (!c) return;
+  c.scores[dim].val = parseFloat(val) || 0;
+  recalcScore(c);
+  rerank();
+  applyFilters();
+  // Update the total in the panel header
+  const header = document.querySelector('.detail-section h3 span');
+  if (header) header.textContent = '(weighted total: ' + c.totalScore.toFixed(2) + ')';
+  // Re-render radar
+  renderRadar(c);
+}
+
+function renderRadar(c) {
+  const canvas = document.getElementById('radar-canvas');
+  if (!canvas) return;
+  if (radarChart) radarChart.destroy();
+  const dims = Object.keys(DIM_LABELS);
+  radarChart = new Chart(canvas, {
+    type: 'radar',
+    data: {
+      labels: dims.map(d => DIM_LABELS[d]),
+      datasets: [{
+        label: c.name,
+        data: dims.map(d => c.scores[d]?.val || 0),
+        backgroundColor: 'rgba(99,102,241,.2)',
+        borderColor: '#6366f1',
+        pointBackgroundColor: dims.map(d => DIM_COLORS[d]),
+        pointRadius: 5
+      }]
+    },
+    options: {
+      scales: { r: { min: 0, max: 5, ticks: { stepSize: 1, color: '#8b8fa3', backdropColor: 'transparent' }, grid: { color: '#2e3348' }, angleLines: { color: '#2e3348' }, pointLabels: { color: '#e4e6f0', font: { size: 11 } } } },
+      plugins: { legend: { display: false } }
+    }
+  });
+}
+
+// ============================================================
+// BENCHMARK VIEW
+// ============================================================
+function renderBenchmark() {
+  document.getElementById('bench-grid').innerHTML = companies.map(c => {
+    const dims = Object.keys(DIM_LABELS);
+    return `<div class="bench-card" onclick="openDetail('${c.name.replace(/'/g,"\\'")}')">
+      <div class="rank">#${c.rank}</div>
+      <h3>${c.name}</h3>
+      <div class="sector">${c.subSector} · ${c.hq}</div>
+      <div class="founder-line">${c.founders?.names?.split(',')[0] || '—'}</div>
+      <div class="bench-scores">
+        ${dims.map(d => `<div class="bench-score-item"><span class="dim">${DIM_LABELS[d].substring(0,6)}:</span> <strong style="color:${DIM_COLORS[d]}">${c.scores[d]?.val || 0}</strong></div>`).join('')}
+      </div>
+      <div style="margin-top:10px;font-size:14px;font-weight:700">Total: <span class="badge ${scoreBadgeClass(c.totalScore)}">${c.totalScore.toFixed(2)}</span></div>
+    </div>`;
+  }).join('');
+}
+
+// ============================================================
+// FRAMEWORK VIEW
+// ============================================================
+function renderFramework() {
+  document.getElementById('framework-content').innerHTML = `
+    <h3>Scoring Dimensions & Weights (v2)</h3>
+    <p>Overhauled from v1 to add founder due diligence, named competitors, capital efficiency, and SDG/impact assessment. Each score includes a written justification explaining <em>why</em> a company received that score.</p>
+    <table>
+      <tr><th>Dimension</th><th>Weight</th><th>What We Measure</th></tr>
+      <tr><td style="color:${DIM_COLORS.founder}"><strong>Founder</strong></td><td>20%</td><td>Founder backgrounds, repeat founders, domain expertise, founder-market fit, team completeness</td></tr>
+      <tr><td style="color:${DIM_COLORS.market}"><strong>Market</strong></td><td>20%</td><td>TAM/SAM, structural tailwinds, regulatory direction, timing of entry</td></tr>
+      <tr><td style="color:${DIM_COLORS.traction}"><strong>Traction</strong></td><td>20%</td><td>Revenue/GMV/users, client quality, growth rate, retention signals</td></tr>
+      <tr><td style="color:${DIM_COLORS.competitive}"><strong>Competitive</strong></td><td>15%</td><td>Named competitors, moat/switching costs, differentiation, market position</td></tr>
+      <tr><td style="color:${DIM_COLORS.capitalEfficiency}"><strong>Capital Efficiency</strong></td><td>15%</td><td>Traction-to-funding ratio, burn efficiency, why raising, runway</td></tr>
+      <tr><td style="color:${DIM_COLORS.sdgImpact}"><strong>SDG / Impact</strong></td><td>10%</td><td>Financial inclusion depth, underserved populations reached, SDG alignment</td></tr>
+    </table>
+
+    <h3>Changes from v1</h3>
+    <ul>
+      <li><strong>Added Founder dimension (20%):</strong> v1 scored founders at 25% but without actual founder research. v2 includes real founder names, backgrounds, and founder-market fit assessment from web research.</li>
+      <li><strong>Added Capital Efficiency (15%):</strong> Measures output per dollar raised. Juicyway's $1.3B/$3M ratio vs Bokra's $4.6M with no product tells you everything.</li>
+      <li><strong>Added SDG/Impact (10%):</strong> The thesis centers on financial inclusion. This dimension explicitly scores alignment.</li>
+      <li><strong>Named Competitors:</strong> Each company now has 2-3 named competitors with descriptions. "Competitive" dimension references these directly.</li>
+      <li><strong>Score Explainability:</strong> Every score has a written justification. Click any company to see why it received each score.</li>
+      <li><strong>Dynamic Editing:</strong> Scores can be edited in the detail panel. Add new companies via the + button.</li>
+    </ul>
+
+    <h3>Scoring Guide (1-5 Scale)</h3>
+    <table>
+      <tr><th>Score</th><th>Meaning</th></tr>
+      <tr><td><strong>5</strong></td><td>Exceptional — top-decile for African fintech at this stage</td></tr>
+      <tr><td><strong>4</strong></td><td>Strong — clear evidence of quality, few concerns</td></tr>
+      <tr><td><strong>3</strong></td><td>Good — meets bar but with notable gaps</td></tr>
+      <tr><td><strong>2</strong></td><td>Below average — meaningful concerns</td></tr>
+      <tr><td><strong>1</strong></td><td>Weak — fundamental issues</td></tr>
+    </table>
+
+    <h3>Why 25 Companies?</h3>
+    <p>Our four-filter system (sector, geography, stage, syndicate) was applied across 80+ web searches covering VC portfolios, tech media, regulatory registries, and accelerator alumni. The initial pass returned ~25 candidates and yielded 20 qualifying companies. A second pass — scanning YC S25, Disrupt Africa Mar 2026, and extended LinkedIn/regulatory searches — surfaced 5 additional companies (MNZL, Munify, TurnStay, Zazu, NjiaPay) that met our filters. Total: 25 companies across 6 sectors, exceeding the case brief's 15+ requirement while maintaining quality.</p>
+
+    <h3>Top 3 Shortlist</h3>
+    <table>
+      <tr><th>Rank</th><th>Company</th><th>Score</th><th>Primary Thesis</th></tr>
+      ${companies.slice(0,3).map((c,i) => `<tr><td>#${i+1}</td><td><strong>${c.name}</strong></td><td>${c.totalScore.toFixed(2)}</td><td>${c.product}</td></tr>`).join('')}
+    </table>`;
+}
+
+// ============================================================
+// SOURCES PLAYBOOK
+// ============================================================
+const sourcesData = [
+  {category:"Standard Sources (Baseline)", desc:"Starting points from case brief. Every applicant uses these.", sources:[
+    {name:"TechCrunch Africa",type:"Tech Media",desc:"Covered 14/25 companies in database.",novelty:"Baseline"},
+    {name:"Disrupt Africa",type:"Tech Media",desc:"Africa-focused. Annual funding report = most comprehensive deal tracker.",novelty:"Baseline"},
+    {name:"Crunchbase",type:"Database",desc:"Cross-referencing funding, investors, metadata.",novelty:"Baseline"},
+    {name:"VC Portfolio Pages",type:"Investor",desc:"Scanned: QED, Partech, TLcom, 4Di, Flourish, Norrsken22, Launch Africa, Global Ventures.",novelty:"Baseline"}
+  ]},
+  {category:"Regulatory Registries & Sandbox Programs", desc:"Licensed fintechs appear here BEFORE any database. Find companies 6-12 months early.", sources:[
+    {name:"FSCA Register (SA)",type:"Regulatory",desc:"Every licensed FSP in SA. Verified Ezeebit's FSCA crypto license.",novelty:"High"},
+    {name:"IFWG/SARB Sandbox (SA)",type:"Regulatory",desc:"Fintech sandbox cohort reports in PDF — lists innovations pre-database.",novelty:"High"},
+    {name:"Egyptian FRA Sandbox (CORBEH)",type:"Regulatory",desc:"Non-banking services sandbox. Verified Flend's NBFI status.",novelty:"High"},
+    {name:"Fintech Egypt Portal (CBE)",type:"Regulatory",desc:"Best Egyptian fintech directory. Verified Axis CBE license.",novelty:"High"},
+    {name:"CBN Nigeria License Gazette",type:"Regulatory",desc:"PSP/MMO/MFB licenses. New issuances reveal companies months early.",novelty:"High"}
+  ]},
+  {category:"Accelerator & Program Alumni", desc:"Pre-screened companies with institutional validation. Most investors only check YC.", sources:[
+    {name:"Visa Africa Fintech Accelerator",type:"Accelerator",desc:"4+ cohorts, 64 fintechs. Cohort 4 included Flend. Almost zero VC coverage.",novelty:"Very High"},
+    {name:"Y Combinator Directory",type:"Accelerator",desc:"Confirmed Amenli (S21), Duplo (W22). Filter Africa + fintech.",novelty:"Medium"},
+    {name:"Google for Startups: Africa",type:"Accelerator",desc:"Up to $200K non-dilutive. 2025 Class 9 includes undiscovered fintechs.",novelty:"High"},
+    {name:"Mastercard Start Path",type:"Accelerator",desc:"Invitation-only. Regularly includes African fintechs.",novelty:"High"},
+    {name:"Catalyst Fund (BFA Global)",type:"Accelerator",desc:"61 companies. $100K+venture building. Past: Chipper Cash.",novelty:"High"}
+  ]},
+  {category:"Specialist VC & DFI Portfolios", desc:"Reverse-engineer deal flow by tracking best seed investors.", sources:[
+    {name:"First Circle Capital",type:"Specialist VC",desc:"IFC-backed, Africa-only fintech seed fund. 24 companies. Found Scale here.",novelty:"Very High"},
+    {name:"Microtraction",type:"Specialist VC",desc:"Pre-seed 'first check'. Portfolio raised $100M+ follow-on. Found Juicyway here.",novelty:"Very High"},
+    {name:"EBRD Startup Portfolio",type:"DFI",desc:"Discovered Amenli's $2.3M follow-on. DFI follow-on = powerful validation.",novelty:"High"},
+    {name:"Accion Ventures",type:"Impact VC",desc:"76 companies. Perfect overlap.",novelty:"High"}
+  ]},
+  {category:"Local & Niche Media", desc:"Cover deals TechCrunch misses. Essential for Francophone Africa and Egypt.", sources:[
+    {name:"Wamda",type:"Media",desc:"Best for Egyptian fintech. Found SETTLE and Bokra.",novelty:"High"},
+    {name:"Empower Africa",type:"Media",desc:"Found Flend, Happy Pay, LittleFish. Strong on smaller rounds.",novelty:"High"},
+    {name:"Daba Finance",type:"Media",desc:"Covers Francophone Africa. Found Cauridor. English media ignores these.",novelty:"Very High"},
+    {name:"Decode Fintech (by Paystack)",type:"Newsletter",desc:"Podcast guests are often pre-Series A founders.",novelty:"Very High"},
+    {name:"Africa: The Big Deal",type:"Newsletter",desc:"Every $100K+ deal in Africa. Catches what Crunchbase misses.",novelty:"Very High"}
+  ]},
+  {category:"Social, Hiring & Product Intelligence", desc:"Real-time signals of PMF, growth, and team building.", sources:[
+    {name:"LinkedIn Founder Search",type:"OSINT",desc:"'Founder' + 'fintech' + country. Filter 1-10 employees + founding date.",novelty:"High"},
+    {name:"LinkedIn Job Postings",type:"Hiring",desc:"Hiring 3-5 engineers = just raised capital. Precedes announcements by weeks.",novelty:"Very High"},
+    {name:"Twitter/X Fintech Communities",type:"Social",desc:"African fintech Twitter is small and tight-knit. Founders share pre-launch.",novelty:"High"},
+    {name:"Google Play Store (by region)",type:"App Intelligence",desc:"Verified Telda's 3M+ downloads. Switch region via VPN for rising apps.",novelty:"High"},
+    {name:"Reddit r/africafintech, r/cryptocurrency",type:"Social",desc:"Early user feedback on products. Regulatory discussion.",novelty:"Medium"},
+    {name:"Product Hunt",type:"Product Launch",desc:"African fintechs launching here have working products + global ambition.",novelty:"Medium"}
+  ]},
+  {category:"Government Policy & Risk", desc:"Regulatory risks and tailwinds that affect investability.", sources:[
+    {name:"CBE Fintech Strategy 2025-2030",type:"Policy",desc:"Egypt central bank digital payments roadmap. Signals regulatory direction.",novelty:"High"},
+    {name:"SARB Vision 2025",type:"Policy",desc:"SA Reserve Bank rapid payments + open banking framework.",novelty:"High"},
+    {name:"AfCFTA Implementation Tracker",type:"Policy",desc:"Trade corridor opening = cross-border payment demand signal.",novelty:"High"},
+    {name:"FATF Grey List Monitoring",type:"Policy",desc:"SA's FATF grey list status affects fintech compliance costs.",novelty:"High"}
+  ]},
+  {category:"Events, Conferences & Awards", desc:"Curated cohorts vetted by independent judges.", sources:[
+    {name:"GITEX Africa Supernova Challenge",type:"Competition",desc:"$110K equity-free prizes. Largest African tech event. Under-tracked by VCs.",novelty:"High"},
+    {name:"AfricArena Summit",type:"Conference",desc:"Top 50 startups selected annually. Previous picks raised $500M+.",novelty:"High"},
+    {name:"Absa Fintech DealBook",type:"Report",desc:"Bank-produced dealbook of investment-ready African fintechs.",novelty:"Very High"},
+    {name:"CGAP (World Bank) Fintech Maps",type:"Research",desc:"Names specific companies in inclusive fintech research.",novelty:"High"}
+  ]},
+  {category:"VC Directories & Accelerator Networks", desc:"Systematic deal flow from organized ecosystems.", sources:[
+    {name:"VC4A",type:"Platform",desc:"29,000+ African ventures. Many not on Crunchbase. Deal flow alerts.",novelty:"High"},
+    {name:"StartupList Africa",type:"Database",desc:"Most comprehensive. Founders self-list before any funding news.",novelty:"High"},
+    {name:"Africa Fintech Foundry (Access Bank)",type:"Accelerator",desc:"10/cohort from 1,000+ applicants. Direct bank partnerships.",novelty:"High"},
+    {name:"GSMA Mobile Money Report",type:"Research",desc:"Case studies name fintechs. Read by telecoms, not VCs — info asymmetry.",novelty:"High"}
+  ]}
+];
+
+function renderSources() {
+  const noveltyBadge = n => n === 'Very High' ? 'badge-green' : n === 'High' ? 'badge-cyan' : n === 'Medium' ? 'badge-yellow' : 'badge-purple';
+  document.getElementById('sources-content').innerHTML = sourcesData.map(cat => `
+    <div class="source-category">
+      <h2>${cat.category}</h2>
+      <div class="cat-desc">${cat.desc}</div>
+      <div class="source-list">
+        ${cat.sources.map(s => `<div class="source-item">
+          <h3>${s.name} <span class="badge ${noveltyBadge(s.novelty)}" style="margin-left:8px">${s.novelty}</span></h3>
+          <span class="badge badge-purple">${s.type}</span>
+          <p>${s.desc}</p>
+        </div>`).join('')}
+      </div>
+    </div>`).join('');
+}
+
+// ============================================================
+// ADD COMPANY MODAL
+// ============================================================
+function openAddModal() {
+  const modal = document.getElementById('add-modal');
+  const content = document.getElementById('add-modal-content');
+  const dims = Object.keys(DIM_LABELS);
+  content.innerHTML = `
+    <h2>Add New Company</h2>
+    <div class="form-group"><label>Company Name</label><input id="add-name" placeholder="e.g., NewFintech"></div>
+    <div class="form-row">
+      <div class="form-group"><label>Website</label><input id="add-website" placeholder="newfintech.com"></div>
+      <div class="form-group"><label>HQ</label><select id="add-hq"><option>South Africa</option><option>Egypt</option><option>Nigeria</option><option>Kenya</option><option>Guinea</option><option>Other</option></select></div>
+      <div class="form-group"><label>Sector</label><input id="add-sector" placeholder="Core Payments"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Sub-Sector</label><input id="add-subsector" placeholder="Payment Orchestration"></div>
+      <div class="form-group"><label>Seed Year</label><input id="add-seedyear" type="number" value="2024"></div>
+      <div class="form-group"><label>Total Raised ($M)</label><input id="add-raised" type="number" step="0.1"></div>
+    </div>
+    <div class="form-group"><label>Lead Investors</label><input id="add-lead" placeholder="Investor names"></div>
+    <div class="form-group"><label>Product Summary</label><textarea id="add-product" placeholder="One-line product description"></textarea></div>
+    <div class="form-group"><label>Founder Names</label><input id="add-founders" placeholder="Name (CEO), Name (CTO)"></div>
+    <div class="form-group"><label>Founder Background</label><textarea id="add-foundersbg" placeholder="Brief background"></textarea></div>
+    <h3 style="font-size:14px;margin:16px 0 8px">Scores (1-5)</h3>
+    <div class="form-row">
+      ${dims.map(d => `<div class="form-group"><label>${DIM_LABELS[d]}</label><input id="add-score-${d}" type="number" min="1" max="5" step="0.5" value="3"></div>`).join('')}
+    </div>
+    <div style="margin-top:20px;display:flex;gap:12px">
+      <button class="btn btn-primary" onclick="addCompany()">Add Company</button>
+      <button class="btn" onclick="closeAddModal()">Cancel</button>
+    </div>`;
+  modal.classList.add('open');
+}
+
+function closeAddModal() { document.getElementById('add-modal').classList.remove('open'); }
+
+function addCompany() {
+  const dims = Object.keys(DIM_LABELS);
+  const scores = {};
+  dims.forEach(d => { scores[d] = { val: parseFloat(document.getElementById('add-score-'+d).value) || 3, why: 'User-added score.' }; });
+  const c = {
+    name: document.getElementById('add-name').value || 'New Company',
+    website: document.getElementById('add-website').value || '',
+    sector: document.getElementById('add-sector').value || 'Other',
+    subSector: document.getElementById('add-subsector').value || 'Other',
+    hq: document.getElementById('add-hq').value,
+    markets: document.getElementById('add-hq').value, marketCount: 1,
+    seedYear: parseInt(document.getElementById('add-seedyear').value) || 2024,
+    seedSize: parseFloat(document.getElementById('add-raised').value) || null,
+    totalRaised: parseFloat(document.getElementById('add-raised').value) || null,
+    leadInvestors: document.getElementById('add-lead').value || 'Unknown',
+    otherInvestors: '', syndicate: 'N', syndicateTier: 'Unscored',
+    product: document.getElementById('add-product').value || '',
+    customerSegment: '', traction: '', risks: '',
+    founders: { names: document.getElementById('add-founders').value || 'Unknown', background: document.getElementById('add-foundersbg').value || '', fit: '' },
+    competitors: [], scores: scores, totalScore: 0,
+    signals: {hiring:'',news:'',policy:'',appIntel:'',social:''},
+    primarySource: 'Manual Entry', secondarySource: '', discoveryPath: 'Added manually via interactive tool.', sourceLinks: []
+  };
+  recalcScore(c);
+  companies.push(c);
+  rerank();
+  closeAddModal();
+  applyFilters();
+  renderBenchmark();
+}
+
+// ============================================================
+// CSV EXPORT
+// ============================================================
+function exportCSV() {
+  const dims = Object.keys(DIM_LABELS);
+  const headers = ['Rank','Company','Website','Sector','Sub-Sector','HQ','Markets','Seed Year','Total Raised ($M)','Lead Investors','Syndicate','Tier','Founders','Founder Background',
+    ...dims.map(d => DIM_LABELS[d]+' Score'), ...dims.map(d => DIM_LABELS[d]+' Why'),
+    'Total Score','Competitors','Primary Source','Discovery Path'];
+  const rows = companies.map(c => [
+    c.rank, c.name, c.website, c.sector, c.subSector, c.hq, c.markets, c.seedYear, c.totalRaised || '',
+    c.leadInvestors, c.syndicate, c.syndicateTier, c.founders?.names || '', c.founders?.background || '',
+    ...dims.map(d => c.scores[d]?.val || ''), ...dims.map(d => (c.scores[d]?.why || '').replace(/"/g,'""')),
+    c.totalScore, (c.competitors||[]).map(x=>x.name).join('; '), c.primarySource, c.discoveryPath
+  ]);
+  let csv = headers.map(h=>'"'+h+'"').join(',')+'\n';
+  rows.forEach(r => { csv += r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')+'\n'; });
+  const blob = new Blob([csv], {type:'text/csv'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = 'sourcing_database.csv'; a.click();
+}
+
+// ============================================================
+// INIT
+// ============================================================
+function init() {
+  // Populate filter dropdowns
+  const sectors = [...new Set(companies.map(c=>c.sector))].sort();
+  const geos = [...new Set(companies.map(c=>c.hq))].sort();
+  sectors.forEach(s => document.getElementById('filter-sector').innerHTML += '<option value="'+s+'">'+s+'</option>');
+  geos.forEach(g => document.getElementById('filter-geo').innerHTML += '<option value="'+g+'">'+g+'</option>');
+
+  // Sort handlers
+  document.querySelectorAll('thead th[data-sort]').forEach(th => {
+    th.addEventListener('click', () => {
+      const key = th.dataset.sort;
+      if (currentSort.key === key) currentSort.asc = !currentSort.asc;
+      else { currentSort.key = key; currentSort.asc = key === 'rank'; }
+      applyFilters();
+    });
+  });
+
+  // Filter handlers
+  ['filter-search','filter-sector','filter-geo','filter-syndicate','filter-minscore'].forEach(id => {
+    document.getElementById(id).addEventListener(id === 'filter-search' ? 'input' : 'change', applyFilters);
+  });
+
+  // Tab handlers
+  document.querySelectorAll('.nav-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById('view-'+tab.dataset.view).classList.add('active');
+      if (tab.dataset.view === 'benchmark') renderBenchmark();
+    });
+  });
+
+  // Close overlays on background click
+  document.getElementById('detail-overlay').addEventListener('click', e => { if (e.target === e.currentTarget) closeDetail(); });
+  document.getElementById('add-modal').addEventListener('click', e => { if (e.target === e.currentTarget) closeAddModal(); });
+
+  rerank();
+  applyFilters();
+  renderFramework();
+  renderSources();
+}
+
+init();
+</script>
+</body>
+</html>
